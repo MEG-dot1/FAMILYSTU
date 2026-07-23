@@ -1,1823 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stress and Strain: Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  /* main stylesheet for the site - shared across every page.
-     colors are all css vars so the accent per stage/story is easy
-     to swap (see the --accent stuff further down, that one's the
-     annoying part to remember when adding a new page lol) */
-  :root{
-    --bg:#121018;
-    --bg-panel:#1B1826;
-    --bg-card:#211E2E;
-    --ink:#F5F2EA;
-    --muted:#B7B1C6;
-    --line:rgba(255,255,255,0.09);
-    --elastic:#33D9B2; /* teal - stage 1 stuff */
-    --yield:#FFC94D;   /* amber */
-    --plastic:#FF8A3D; /* orange */
-    --fracture:#FF4D6D;/* red-ish, revenge/fracture stage */
-    --repair:#E17FE0;  /* pink, forgiveness */
-    --seam:#F2C14E;    /* gold seam color, used sparingly */
-    --serif:'Fraunces', serif;
-    --sans:'IBM Plex Sans', sans-serif;
-    --mono:'IBM Plex Mono', monospace;
-  }
+<div class="grid-bg"></div>
+<div id="progress-bar"></div>
 
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:var(--sans);
-    line-height:1.6;
-    overflow-x:hidden;
-  }
+<header class="site-nav">
+  <div class="brand">stress<span>&amp;</span>strain</div>
+  <nav class="links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="index.html#articles">Articles</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="interviews.html">Interviews</a>
+  </nav>
+</header>
 
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; scroll-behavior:auto !important;}
-  }
+<main class="simple-main">
 
-  a{color:inherit;}
+  <a class="back-link reveal in" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to stories
+  </a>
 
-  .grid-bg{
-    position:fixed;
-    inset:0;
-    z-index:0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-    background-size:32px 32px, 32px 32px;
-    pointer-events:none;
-  }
+  <div id="story-content"></div>
 
-  #progress-bar{
-    position:fixed;
-    top:0; left:0;
-    height:3px;
-    width:0%;
-    background:linear-gradient(90deg, var(--elastic), var(--yield), var(--plastic), var(--fracture), var(--repair));
-    background-size:500% 100%;
-    background-position:0% 0%;
-    z-index:500;
-    transition:width 0.08s linear;
-  }
+  <footer>
+    <div>FAMLYSTU group 84</div>
+  </footer>
 
-  header.site-nav{
-    position:fixed;
-    top:0; left:0; right:0;
-    z-index:400;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:14px 28px;
-    background:rgba(18,16,24,0.78);
-    backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-  }
-  .brand{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.05rem;
-    letter-spacing:0.01em;
-  }
-    .brand span{color:var(--fracture);}
-  nav.links{
-    display:flex;
-    gap:22px;
-    font-family:var(--mono);
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-  }
-  nav.links a{
-    text-decoration:none;
-    opacity:0.75;
-    position:relative;
-    padding-bottom:3px;
-    transition:opacity 0.2s ease, color 0.2s ease;
-  }
-  nav.links a:hover{opacity:1; color:var(--elastic);}
-  nav.links a::after{
-    content:'';
-    position:absolute;
-    left:0; bottom:0;
-    width:0%;
-    height:2px;
-    background:linear-gradient(90deg, var(--elastic), var(--fracture));
-    transition:width 0.25s ease;
-  }
-  nav.links a:hover::after{width:100%;}
-  @media (max-width:760px){
-    nav.links{display:none;}
-  }
+</main>
 
-  .page-frame{
-    position:relative;
-    z-index:1;
-    display:grid;
-    grid-template-columns:110px 1fr;
-    max-width:1180px;
-    margin:0 auto;
-  }
-  @media (max-width:900px){
-    .page-frame{grid-template-columns:1fr;}
-    .rail{display:none;}
+<script>
+  // this whole page is basically one template that reads ?story=xxx from the
+  // url and fills in the right content. STORIES has the basic info (icon,
+  // accent color, title) for every story, then further down there's a
+  // build___Article() function for each one that has real content written
+  // in. anything not in that list just falls back to the placeholder text.
+  const STORIES = {
+    "perceived-relational-value": {
+      accent: "elastic",
+      icon: '<circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/>',
+      title: "Feeling Taken for Granted? Understanding Perceived Relational Value"
+    },
+    "ostracism": {
+      accent: "elastic",
+      icon: '<path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-dasharray="2 3"/>',
+      title: "The Silent Treatment: Understanding Ostracism"
+    },
+    "jealousy-types": {
+      accent: "yield",
+      icon: '<path d="M12 2l2.4 6.9L21 9l-5.5 4.3L17 21l-5-3.7L7 21l1.5-7.7L3 9l6.6-0.1z"/>',
+      title: "Jealousy: When Relationships Feel Threatened"
+    },
+    "evolutionary-perspective": {
+      accent: "yield",
+      icon: '<path d="M3 12h4l3-9 4 18 3-9h4"/>',
+      title: "The Evolutionary Perspective"
+    },
+    "lying": {
+      accent: "plastic",
+      icon: '<path d="M9 12h6M9 16h6M9 8h6"/><rect x="4" y="4" width="16" height="16" rx="2"/>',
+      title: "Why Do We Lie to The People We Care About?"
+    },
+    "betrayal": {
+      accent: "plastic",
+      icon: '<path d="M12 2C8 2 4 6 4 10c0 5 8 12 8 12s8-7 8-12c0-4-4-8-8-8z"/><path d="M9 10l2 2 4-4" stroke-dasharray="1 3"/>',
+      title: "Why Betrayal Hurts So Much"
+    },
+    "revenge": {
+      accent: "fracture",
+      icon: '<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>',
+      title: "When Hurt Turns Into Revenge"
+    },
+    "forgiveness-ruth-berger": {
+      accent: "repair",
+      icon: '<path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.5l-1-.9a5.5 5.5 0 00-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 000-7.8z"/>',
+      title: "What Does It Really Mean to Forgive?"
+    }
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get('story');
+  const story = STORIES[slug];
+  const container = document.getElementById('story-content');
+
+  // lazy way to fill in the draft paragraphs before real content was written -
+  // just repeats the word "placeholder" a bunch of times. kept it since a few
+  // stories still use it
+  const placeholderText = Array(51).fill('placeholder').join(' ');
+  const placeholderSentence = placeholderText.charAt(0).toUpperCase() + placeholderText.slice(1) + '.';
+
+  // leftover from when the flashcards used to shuffle randomly each time,
+  // decided that made them harder to study from so went back to fixed order.
+  // not calling this anywhere anymore, just haven't deleted it
+  function shuffleCardOrder(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
   }
 
-  .rail{
-    position:sticky;
-    top:0;
-    height:100vh;
-    padding-top:80px;
-  }
-  .rail svg{
-    width:100%;
-    height:calc(100% - 80px);
-    overflow:visible;
-  }
-  .curve-path{
-    fill:none;
-    stroke:var(--elastic);
-    stroke-width:2.6;
-    stroke-linecap:round;
-  }
-  .curve-path.mended{
-    stroke:var(--seam);
-    stroke-dasharray:5 5;
-  }
-  .curve-marker{
-    fill:var(--fracture);
-    r:5;
-  }
-  .curve-point-label{
-    font-family:var(--mono);
-    font-size:8.5px;
-    fill:var(--muted);
-    opacity:0.85;
+  // 10 flip cards, only used on the "lying" story for now. could probably
+  // reuse this for other stories later if we want
+  //
+  // (first version of this just rendered a static 2x5 grid of divs with no
+  // flip, wasn't as fun so switched to the card-flip version below)
+  function buildFlashcards(){
+    let cards = '';
+    for(let i = 1; i <= 10; i++){
+      cards += `
+        <div class="flashcard reveal in" style="animation-delay:${i * 0.05}s" data-index="${i}">
+          <div class="flashcard-inner">
+            <div class="flashcard-face flashcard-front">
+              <div class="flashcard-num">Card ${i}</div>
+              <div class="flashcard-word">Placeholder</div>
+            </div>
+            <div class="flashcard-face flashcard-back">
+              <div class="flashcard-num">Card ${i}</div>
+              <div class="flashcard-word">Placeholder</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    return `
+      <div class="flashcard-grid reveal in">${cards}</div>
+      <p class="flashcard-hint reveal in">Tap a card to flip it.</p>
+    `;
   }
 
-  main{
-    position:relative;
-    padding:0 26px 40px 34px;
-  }
-  @media (max-width:900px){
-    main{padding:0 20px 40px;}
+  function buildPRVArticle(){
+    return `
+      <blockquote class="pull-quote reveal in" style="--accent:var(--elastic)">
+        "It's painful to perceive that our relational value, that is, the degree to which others consider their relationships with us to be valuable and important, is lower than we would like it to be."
+        <cite>Intimate Relationships, 9th Edition &middot; Rowland S. Miller</cite>
+      </blockquote>
+
+      <div class="article-body reveal in">
+        <p>"Hey! Are we still on for dinner tonight?" You hit send and wait for a reply.</p>
+      </div>
+
+      <figure class="article-figure narrow reveal in">
+        <img src="images/prv-text-message.png" alt="text screenshot">
+        <figcaption>Sent. Delivered. Still waiting.</figcaption>
+      </figure>
+
+      <div class="article-body reveal in">
+        <p>An hour passes, then another. You realize they've been active on social media, but your message is still left unread. Over the next few weeks, it keeps happening. You're always the one making plans. You're always the one checking in. Eventually, you stop trying altogether.</p>
+        <p>You start asking yourself the following: "Did I do something wrong?" "Am I just not important to them anymore?" "Maybe they just don't value this friendship the way I do."</p>
+        <p>This story isn't really about an unanswered text. It's about what that unanswered text represents. Situations like this can make us wonder how much we matter to someone else. This concept is known as perceived relational value.</p>
+
+        <h3>Understanding Perceived Relational Value</h3>
+        <p>Perceived relational value refers to how much we believe another person values their relationship with us (Miller, 2021). Every close relationship sends messages about where we stand. These messages come through everyday interactions, such as making time for someone, checking in, remembering important events, or including them in plans. Over time, these behaviours shape our perception of how much we are valued.</p>
+        <p>Perceived relational value can be either high or low depending on how we interpret another person's behaviour (Miller, 2021). High perceived relational value means we believe another person values having a relationship with us. We feel wanted, appreciated and included. On the other hand, low perceived relational value means we believe another person doesn't value the relationship as much. We may feel ignored, overlooked, or unimportant.</p>
+
+        <h3>Why Does It Matter?</h3>
+        <p>Humans have a natural need to feel accepted by others. As a result, we naturally pay attention to how people treat us. Our relationships with others help shape our sense of belonging. When we believe someone values us less than before, it can create feelings of disappointment and insecurity.</p>
+
+        <div class="article-note">
+          <strong>Note:</strong> it is important to remember that perceived relational value is based on our interpretation of another person's behaviour (Miller, 2021). Sometimes our assumptions are accurate, but other times there may be explanations we don't know about, such as stress, work commitments, or personal problems. This is why communication is a key factor to building healthy relationships.
+        </div>
+
+        <p>Perceived relational value is closely connected to relational devaluation. While perceived relational value refers to how much we believe another person values their relationship with us, relational devaluation occurs when we perceive that this value has decreased over time (Miller, 2021). Instead of asking, "How much does this person value me?" relational devaluation asks, "Do they value me less than they used to?" For example, if a close friend who once regularly called, invited you out, and made time for you suddenly becomes distant, you may begin to feel that your importance in their life has decreased. This apparent decrease in relational value is what often leads to hurt feelings. In a way, relational devaluation can be understood as a decline in perceived relational value.</p>
+
+        <h3>Degrees of Acceptance and Rejection</h3>
+        <p><strong>Being accepted or rejected by others is not an all-or-nothing event.</strong> People can desire our company to greater or lesser degrees, and researchers use these labels to describe the different extents to which we may be included or excluded by others.</p>
+
+        <div class="spectrum-list">
+          <div class="spectrum-item accept">
+            <h4>Minimal inclusion</h4>
+            <p>Others seek us out and go out of their way to interact with us.</p>
+          </div>
+          <div class="spectrum-item accept">
+            <h4>Active inclusion</h4>
+            <p>Others want us and welcome us but do not go to lengths to be with us.</p>
+          </div>
+          <div class="spectrum-item accept">
+            <h4>Passive inclusion</h4>
+            <p>Others allow us to be included.</p>
+          </div>
+          <div class="spectrum-item neutral">
+            <h4>Ambivalence</h4>
+            <p>Others do not care whether we are included or not.</p>
+          </div>
+          <div class="spectrum-item reject">
+            <h4>Passive exclusion</h4>
+            <p>Others ignore us but do not avoid us.</p>
+          </div>
+          <div class="spectrum-item reject">
+            <h4>Active exclusion</h4>
+            <p>Others avoid us, tolerating our presence only when necessary.</p>
+          </div>
+          <div class="spectrum-item reject">
+            <h4>Maximal exclusion</h4>
+            <p>Others banish us, sending us away, or abandon us.</p>
+          </div>
+        </div>
+
+        <p class="source-note">Source: Leary, M. R. (2001). Toward a conceptualization of interpersonal rejection. In M. R. Leary (Ed.), <em>Interpersonal rejection</em> (pp. 5&ndash;28). Oxford University Press.</p>
+
+        <p>On the side of extreme acceptance, we have maximal inclusion. This is when someone makes a clear effort to include you because they genuinely want you there. For example, someone might change the date of an event they are hosting to make sure you can attend. This heavily communicates that your presence is important to them.</p>
+        <p>The next level is active inclusion. Essentially, others want to include you, but unlike maximal inclusion, they won't go out of their way to do so. In this case, you are invited to a party because others enjoy your company. Although they won't change their plans for you, they still make it clear that they want your presence.</p>
+        <p>This is followed by passive inclusion. Others may be happy to have you around, yet they don't go out of their way to ensure you're included. Even though you are still being accepted, this sends a much less powerful message regarding how much you are truly valued by the other person.</p>
+        <p>The middle ground is called ambivalence. Here, others are neither accepting or rejecting. The other side of the spectrum highlights the different types of rejection.</p>
+        <p>Passive exclusion happens when someone is left out without direct rejection. For instance, friends might organize a gathering and simply overlook inviting you. Even if this exclusion is unintentional, it can still diminish your perceived relational value by casting doubt on where you stand in the relationship.</p>
+        <p>Next is active exclusion. This is when someone intentionally chooses not to include another person.</p>
+        <p>Finally, the strongest form of rejection is maximal exclusion, where a person is openly rejected or told they are not wanted. In fact, if you show up at a party, they will go out of their way to tell you to leave. This displays the lowest level of relational value.</p>
+
+        <h3>Why Small Moments Matter</h3>
+        <p>Perceived relational value is shaped by everyday interactions. A single unanswered text or cancelled plan is unlikely to change a relationship, but repeated experiences of being ignored or left out can make someone feel taken for granted. These situations may lead people to question how much they are valued.</p>
+        <p>At the end of the day, strong relationships are built through small, consistent actions that communicate appreciation, respect and inclusion. Making time for someone, checking in, sending an invite, and showing gratitude can strengthen perceived relational value. Although these actions may seem small, they send an important message about how much we value the people in our lives.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--elastic)">
+        <div class="topic-kicker">Reflection question</div>
+        <p>How do you think social media influences perceived relational value? Can online interactions, such as being left on read, not being tagged in a post, or receiving few likes or comments, affect how people feel about their relationships?</p>
+      </div>
+    `;
   }
 
-  .reveal{
-    opacity:0;
-    transform:translateY(34px);
-    transition:opacity 0.8s cubic-bezier(.2,.7,.3,1), transform 0.8s cubic-bezier(.2,.7,.3,1);
-  }
-  .reveal.in{
-    opacity:1;
-    transform:translateY(0);
-  }
-  .reveal-left{transform:translateX(-40px);}
-  .reveal-left.in{transform:translateX(0);}
-  .reveal-right{transform:translateX(40px);}
-  .reveal-right.in{transform:translateX(0);}
-  .reveal-scale{transform:scale(0.9);}
-  .reveal-scale.in{transform:scale(1);}
+  function renderOstracismSection(){
+    return `
+      <div class="definition-box reveal in" style="--accent:var(--elastic)">
+        <span class="term">Ostracism</span><span class="pos">noun</span>
+        the act of intentionally ignoring or excluding another person, often referred to as the silent treatment (Merriam-Webster, n.d.).
+      </div>
 
-  .hero{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    padding-top:70px;
-    position:relative;
-  }
-  .eyebrow{
-    font-family:var(--mono);
-    font-size:0.78rem;
-    text-transform:uppercase;
-    letter-spacing:0.14em;
-    color:var(--elastic);
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:18px;
-  }
-  .eyebrow::before{
-    content:'';
-    width:26px;
-    height:2px;
-    background:var(--fracture);
-    display:inline-block;
-  }
-  h1.hero-title{
-    font-family:var(--serif);
-    font-weight:700;
-    font-size:clamp(2.6rem, 7vw, 5.6rem);
-    line-height:1.02;
-    margin:0 0 26px 0;
-    max-width:14ch;
-    color:var(--ink);
-  }
-  h1.hero-title em{
-    font-style:italic;
-    font-weight:600;
-    background:linear-gradient(90deg, var(--fracture), var(--repair));
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-  }
-  .hero-sub{
-    max-width:52ch;
-    font-size:1.08rem;
-    color:var(--muted);
-    margin-bottom:34px;
-  }
-  .hero-meta{
-    display:flex;
-    gap:34px;
-    flex-wrap:wrap;
-    font-family:var(--mono);
-    font-size:0.75rem;
-    color:var(--elastic);
-    opacity:0.9;
-  }
-  .scroll-cue{
-    margin-top:60px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    font-family:var(--mono);
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    color:var(--elastic);
-  }
-  .scroll-cue svg{
-    animation:bob 1.8s ease-in-out infinite;
-  }
-  @keyframes bob{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(7px);}
+      <figure class="article-figure reveal in">
+        <img src="images/ostracism-couple.png" alt="couple on couch, one upset">
+      </figure>
+
+      <div class="article-body reveal in">
+        <p>Almost everyone has experienced the silent treatment at some point, whether from a friend, family member, or romantic partner. Unlike an argument, where both people communicate through the problem, ostracism involves stopping communication altogether. A person may ignore messages, refuse to respond in conversation, avoid eye contact, or behave as if the other person is not even there.</p>
+        <p>Although it may seem like a simple way to avoid conflict, ostracism, in fact, is one of the most stressful forms of rejection (Miller, 2021). This is because it often leaves the other person confused and looking for answers.</p>
+
+        <h3>Understanding Ostracism</h3>
+        <p>Ostracism is a form of rejection in which someone intentionally ignores or excludes another person. In close relationships, it's commonly known as the silent treatment or giving someone the cold shoulder. Instead of expressing anger or explaining what is wrong, the person purposely stops all communication, sometimes going as far as pretending the other person isn't even present.</p>
+        <p>Ostracism is surprisingly common. In fact, 78% of Americans have reported having experienced ostracism in their lifetime (Hales &amp; Wood, 2024). People often use the silent treatment because they want to punish someone, avoid confrontation, or give themselves time to calm down after a disagreement. However, unlike healthy communication, ostracism rarely includes an explanation. As a result, the person being ignored is often left wondering what they did wrong or why they are being treated differently. This uncertainty is one of the main reasons ostracism can create significant stress and strain in relationships.</p>
+
+        <h3>Why is the Silent Treatment so Harmful?</h3>
+
+        <p>The hardest part of ostracism is the uncertainty it creates. During an argument, people at least know what the disagreement is about. With the silent treatment, however, there is often no explanation at all. This uncertainty causes people to question themselves:</p>
+
+        <ul class="quote-list">
+          <li>"Did I say something wrong?"</li>
+          <li>"Are they upset with me?"</li>
+          <li>"Do they even want to be around me anymore?"</li>
+        </ul>
+
+        <p>Because there are no answers, many people replay recent conversations and interactions, trying to figure out what caused the silence. This confusion is one of the reasons ostracism creates so much strain in relationships.</p>
+        <p>Ostracism is also closely connected to perceived relational value. When someone intentionally ignores us, we often interpret their behaviour as a sign that they no longer value their relationship with us. Whether or not that interpretation is accurate, this perceived decrease in relational value often leads to hurt feelings, insecurity, and emotional distress.</p>
+        <p>Research done by the National Library of Medicine discussed that these effects are strong during adolescence. In a study of 1,315 Chinese high school students, researchers found that adolescents who experienced more ostracism were also more likely to socially withdraw from others. It found that ostracism threatened adolescents' self-esteem, which in turn increased their tendency to avoid social situations. Adolescence is already a period when people are particularly sensitive to rejection, so being ignored can make them question their self-worth and become less willing to build or maintain relationships (Lei et al., 2024).</p>
+
+        <h3>A Cold Shoulder Feels Cold</h3>
+        <p>Ostracism threatens several of our most basic psychological needs. Being ignored weakens our sense of belonging, lowers our self-esteem, reduces our feeling of control over the situation, and can even make us feel less human. Rather than simply being sad, people often experience confusion, stress, frustration, and anger.</p>
+        <p>Also, the effects of ostracism aren't only emotional. Studies have found that people who are excluded report that a room feels colder than it actually is and are more likely to want warm food or drinks. Their bodies also release cortisol, a hormone associated with stress. Even time seems to pass more slowly. In one experiment, participants who felt accepted estimated a 40 second interval as about 42 seconds, while those who had been rejected believed about 64 seconds had passed (Miller, 2021). This proves that being ignored affects both the mind and body.</p>
+
+        <h3>How Do People Respond to Ostracism</h3>
+        <p>Not everyone reacts to the silent treatment in the same way.</p>
+        <p>Some people try to repair the relationship. They may try to apologize, become more agreeable, or work harder to regain the other person's acceptance, especially if they believe the relationship can still be saved. Others react very differently. When the silent treatment starts to feel unfair, people often become angry or resentful. As a result, they may withdraw, lash out, or even end the relationship altogether.</p>
+        <p>Moreover, self-esteem plays a significant role. People with higher self-esteem are generally more likely to leave relationships where they are repeatedly ignored and seek healthier relationships instead. Those with lower self-esteem are more likely to remain in the relationship while holding onto resentment or responding with the silent treatment themselves.</p>
+
+        <h3>The Bottom Line</h3>
+        <p>Although the silent treatment may feel like an easy way to avoid conflict or express frustration, it often creates more problems than it solves. Instead of helping the other person understand what went wrong, ostracism usually leaves them confused, hurt, and questioning their place in the relationship.</p>
+        <p>Healthy relationships are strengthened through honest communication, even during disagreements. Talking through a problem may be uncomfortable, but it gives both people the opportunity to understand one another and work toward a solution. In contrast, silence often leaves both people feeling further apart than before.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--elastic)">
+        <div class="topic-kicker">Reflection question</div>
+        <p>Have you ever experienced the silent treatment or unintentionally given it to someone else? How do you think clear communication could have changed the situation?</p>
+      </div>
+    `;
   }
 
-  .hero-graph{
-    margin-top:10px;
-    width:100%;
-    max-width:420px;
-    height:90px;
-  }
-  .hero-graph path{
-    fill:none;
-    stroke:var(--fracture);
-    stroke-width:2.4;
-    stroke-linecap:round;
-    stroke-dasharray:420;
-    stroke-dashoffset:420;
-    animation:draw-hero 2.4s 0.4s cubic-bezier(.3,.8,.3,1) forwards;
-  }
-  @keyframes draw-hero{
-    to{stroke-dashoffset:0;}
+  // used to be two separate stories (types of jealousy + who's more prone
+  // to it) but merged them into one since they overlapped so much.
+  // (old buildJealousyProneArticle() got folded into the function below,
+  // never bothered deleting this comment block, whatever)
+
+  function buildJealousyArticle(){
+    return `
+      <div class="article-body reveal in">
+        <p>You're out with your partner when someone they used to date comes over to say hello. They hug, laugh about an old memory, and continue talking for several minutes. Nothing inappropriate happens, but you can't stop thinking about it for the rest of the day.</p>
+      </div>
+
+      <ul class="quote-list">
+        <li>Were they just catching up?</li>
+        <li>Should you be worried?</li>
+        <li>Or are your emotions creating a threat that doesn't actually exist?</li>
+      </ul>
+
+      <div class="article-body reveal in">
+        <p>Most people experience jealousy at some point in a relationship. In fact, it is a normal emotional response when we believe an important relationship may be at risk. However, not all jealousy is the same. Understanding the different types of jealousy can help us recognize when our feelings are based on a real concern and when they may be driven by our own fears or insecurities.</p>
+
+        <h3>Understanding Jealousy</h3>
+        <p>Jealousy is an emotional response that occurs when we perceive the possible loss of a valued relationship to a real or imagined rival. Sometimes jealousy is confused with envy (Miller, 2021). Unlike envy, which involves wanting something another person has, jealousy is rooted in the fear of losing something we already have.</p>
+        <p>Jealousy is primarily made of three emotions: hurt, fear, and anger (Miller, 2021). Hurt occurs when we believe our partner no longer values the relationship as much as we do. Fear comes from the possibility of losing the relationship. Finally, anger is often directed toward both the romantic rival and the partner.</p>
+
+        <h3>Types of Jealousy</h3>
+      </div>
+
+      <div class="table-scroll reveal in">
+        <table class="jealousy-table">
+          <thead>
+            <tr>
+              <th class="reactive"><span class="th-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg></span>Reactive Jealousy</th>
+              <th class="suspicious"><span class="th-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9.5 9a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 3.5M12 17h.01"/></svg></span>Suspicious Jealousy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong class="row-label">What it is</strong>Occurs in response to an actual threat to a valued relationship.</td>
+              <td><strong class="row-label">What it is</strong>Occurs when there is no evidence that a partner has misbehaved.</td>
+            </tr>
+            <tr>
+              <td><strong class="row-label">Based on</strong>Based on facts or behaviours that reasonably threaten the relationship.</td>
+              <td><strong class="row-label">Based on</strong>Based on assumptions, mistrust, or imagined possibilities rather than facts.</td>
+            </tr>
+            <tr>
+              <td><strong class="row-label">Example</strong>Your partner openly flirts with someone else or admits they are interested in another person.</td>
+              <td><strong class="row-label">Example</strong>Your partner regularly texts a longtime friend, but nothing in their conversations suggests romantic interest.</td>
+            </tr>
+            <tr>
+              <td><strong class="row-label">Typically</strong>Usually reflects concern about a genuine relationship issue.</td>
+              <td><strong class="row-label">Typically</strong>Can lead to overthinking, constant reassurance seeking, or unnecessary conflict.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="article-body reveal in">
+        <h3>Why Some People Experience More Jealousy Than Others</h3>
+        <p>Many people assume that women are naturally more jealous than men, but research suggests this isn't true. Overall, men and women do not differ significantly in their tendency to experience jealousy (Miller, 2021). Instead, jealousy varies from person to person based on individual experiences, personality, and relationship dynamics (Miller, 2021).</p>
+
+        <p>One factor that influences jealousy is <strong>dependence on the relationship</strong> (Miller, 2021). People who feel they have few alternatives or believe they need their current partner are often more sensitive to anything that threatens the relationship. Because they think they have more to lose, even small signs of a romantic rival can feel overwhelming. On the other hand, people who feel more secure and believe they could cope if the relationship ended tend to experience less jealousy.</p>
+
+        <p>Another important factor is <strong>self-confidence within the relationship</strong> (Miller, 2021). People who constantly question whether they are "good enough" for their partner are more likely to become jealous. They may worry that they can't meet their partner's expectations or are afraid that someone else could offer more. Although people with high self-esteem generally experience less jealousy, even confident individuals may become jealous if they doubt their value in a particular relationship.</p>
+
+        <p>Next is <strong>mate value</strong>. Mate value refers to the qualities a person brings to a relationship, such as physical attractiveness, intelligence, personality, talent, financial stability, or social status (Miller, 2021). If one partner believes the other has a much higher mate value than they do, they may become concerned that someone "better" could attract their partner. These feelings of inadequacy can increase jealousy, even when there is no real threat to the relationship.</p>
+
+        <p><strong>Attachment style</strong> also plays a key role (Miller, 2021). People with a preoccupied attachment style tend to experience the highest levels of jealousy because they strongly desire closeness but often worry that their partner doesn't love them as much in return. This constant fear of rejection makes them more likely to interpret situations as relationship threats. On the other hand, people with a dismissing attachment style are generally less affected by jealousy because they value independence and are less emotionally dependent on romantic relationships.</p>
+
+        <p>Finally, <strong>personality traits</strong> influence how easily someone becomes jealous. Individuals who score high in neuroticism, a personality trait associated with worry and emotional instability, are more likely to experience jealousy because they naturally expect negative outcomes. Instead, people who are more agreeable tend to be trusting and cooperative, making them less likely to become jealous.</p>
+      </div>
+    `;
   }
 
-  .stage-divider{
-    display:flex;
-    align-items:baseline;
-    gap:16px;
-    margin:120px 0 46px 0;
-    padding-bottom:14px;
-    border-bottom:1px solid var(--line);
-  }
-  .stage-num{
-    font-family:var(--mono);
-    font-size:0.78rem;
-    color:var(--accent, var(--fracture));
-    letter-spacing:0.06em;
-  }
-  .stage-title{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:clamp(1.5rem,3.4vw,2.3rem);
-  }
-  .stage-note{
-    font-family:var(--mono);
-    font-size:0.7rem;
-    color:var(--muted);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    margin-left:auto;
-    text-align:right;
-    max-width:22ch;
-  }
-  @media (max-width:640px){
-    .stage-divider{flex-wrap:wrap;}
-    .stage-note{margin-left:0;}
+  function renderEvolutionaryContent(){
+    return `
+      <div class="article-body reveal in">
+        <p>Imagine you realized that your partner had become interested in someone else. Which situation would upset you more?</p>
+      </div>
+
+      <div class="choice-list reveal in">
+        <div class="choice-item">
+          <span class="choice-letter">A</span>
+          <p>Your partner develops a deep emotional connection with another person.</p>
+        </div>
+        <div class="choice-item">
+          <span class="choice-letter">B</span>
+          <p>Your partner has sexual intercourse with someone else.</p>
+        </div>
+      </div>
+
+      <div class="article-body reveal in">
+        <p>When researchers asked this question, 60% of men reported that sexual infidelity would be more distressing, whereas only 17% of women gave the same response (Miller, 2021). In fact, when actually confronting cheating partners, men were more likely to ask if their partners had sexual intercourse with someone else (Miller, 2021). Instead, women were more likely to wonder if they had fallen in love with another person.</p>
+      </div>
+
+      <div class="stat-chart reveal in">
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-swatch men"></span>Men</span>
+          <span class="legend-item"><span class="legend-swatch women"></span>Women</span>
+        </div>
+        <svg class="chart-svg" viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg">
+          <line class="chart-grid-line" x1="40" y1="210" x2="420" y2="210"/>
+          <line class="chart-grid-line" x1="40" y1="160" x2="420" y2="160"/>
+          <line class="chart-grid-line" x1="40" y1="110" x2="420" y2="110"/>
+          <line class="chart-grid-line" x1="40" y1="60" x2="420" y2="60"/>
+          <line class="chart-grid-line" x1="40" y1="10" x2="420" y2="10"/>
+          <text class="chart-axis-label" x="32" y="213" text-anchor="end">0</text>
+          <text class="chart-axis-label" x="32" y="163" text-anchor="end">20</text>
+          <text class="chart-axis-label" x="32" y="113" text-anchor="end">40</text>
+          <text class="chart-axis-label" x="32" y="63" text-anchor="end">60</text>
+          <text class="chart-axis-label" x="32" y="13" text-anchor="end">80</text>
+
+          <g class="chart-bar-group men" style="--glow:var(--yield); animation-delay:0.05s, 0.8s">
+            <polygon class="chart-face-side" points="140,67.5 154,58.5 154,201 140,210" fill="#C98A2E"/>
+            <polygon class="chart-face-top" points="90,67.5 140,67.5 154,58.5 104,58.5" fill="#FFE18A"/>
+            <rect class="chart-face-front" x="90" y="67.5" width="50" height="142.5" fill="var(--yield)"/>
+          </g>
+
+          <g class="chart-bar-group women" style="--glow:var(--fracture); animation-delay:0.16s, 0.91s">
+            <polygon class="chart-face-side" points="200,137.5 214,128.5 214,201 200,210" fill="#B23350"/>
+            <polygon class="chart-face-top" points="150,137.5 200,137.5 214,128.5 164,128.5" fill="#FF93A8"/>
+            <rect class="chart-face-front" x="150" y="137.5" width="50" height="72.5" fill="var(--fracture)"/>
+          </g>
+
+          <g class="chart-bar-group men" style="--glow:var(--yield); animation-delay:0.27s, 1.02s">
+            <polygon class="chart-face-side" points="330,102.5 344,93.5 344,201 330,210" fill="#C98A2E"/>
+            <polygon class="chart-face-top" points="280,102.5 330,102.5 344,93.5 294,93.5" fill="#FFE18A"/>
+            <rect class="chart-face-front" x="280" y="102.5" width="50" height="107.5" fill="var(--yield)"/>
+          </g>
+
+          <g class="chart-bar-group women" style="--glow:var(--fracture); animation-delay:0.38s, 1.13s">
+            <polygon class="chart-face-side" points="390,32.5 404,23.5 404,201 390,210" fill="#B23350"/>
+            <polygon class="chart-face-top" points="340,32.5 390,32.5 404,23.5 354,23.5" fill="#FF93A8"/>
+            <rect class="chart-face-front" x="340" y="32.5" width="50" height="177.5" fill="var(--fracture)"/>
+          </g>
+        </svg>
+        <div class="chart-x-labels">
+          <div class="chart-x-label">"Did you have SEX with him/her?"</div>
+          <div class="chart-x-label">"Do you LOVE him/her?"</div>
+        </div>
+        <p class="chart-caption">The wounded partners' primary focus when confronting a cheating partner</p>
+        <p class="source-note">Source: Miller, R. S. (2021). <em>Intimate relationships</em> (9th ed.). McGraw-Hill Education.</p>
+      </div>
+
+      <div class="article-body reveal in">
+        <p>An evolutionary perspective suggests that these differences developed because men and women historically faced different reproductive challenges. For men, sexual infidelity created paternity uncertainty, meaning they could never be 100% sure that a child was biologically theirs. Investing time, energy, and resources into raising another man's child would have reduced their own reproductive success. As a result, sexual infidelity represented a particularly significant threat.</p>
+
+        <p>For women, the greater evolutionary concern was often emotional infidelity. If a partner formed a deep emotional bond with someone else, there was a greater risk that he would withdraw his time, protection, commitment, and resources from the relationship and invest them in another partner instead. Because these resources were important for raising children throughout human history, losing a partner's emotional commitment posed a significant threat.</p>
+
+        <div class="article-note">
+          <strong>Note:</strong> It is important to remember that this is one explanation for differences in jealousy. Not every individual responds in the same way, and people's experiences are also shaped by factors such as their personality, attachment style, personal values, and life experiences. With that said, the evolutionary perspective provides one possible explanation for why different forms of infidelity may affect people differently.
+        </div>
+
+        <h3>The Bottom Line</h3>
+        <p>Jealousy is a normal human emotion that almost everyone experiences at some point. It's not a sign that someone is "crazy" or overly emotional. Instead, jealousy often signals that a person perceives a threat to a relationship they value.</p>
+        <p>However, not all jealousy reflects reality. Sometimes it develops because of a genuine threat, while other times it stems from insecurity, low self-esteem, or past experiences. Factors such as attachment style, personality, and relationship confidence all influence how people experience and respond to jealousy.</p>
+        <p>Recognizing why jealousy occurs is the first step toward managing it in a healthy way. Rather than making assumptions or reacting impulsively, open communication, trust, and self-awareness can help partners address concerns before jealousy begins to damage the relationship.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--yield)">
+        <div class="topic-kicker">Reflection question</div>
+        <p>Do you think jealousy is always harmful, or can it sometimes serve a useful purpose in relationships?</p>
+      </div>
+    `;
   }
 
-  .topic{
-    margin-bottom:88px;
-    padding-bottom:6px;
-  }
-  .topic-head{
-    display:flex;
-    gap:18px;
-    align-items:flex-start;
-    margin-bottom:18px;
-  }
-  .topic-icon{
-    flex:0 0 auto;
-    width:46px;height:46px;
-    border-radius:50%;
-    background:var(--bg-card);
-    border:1.5px solid var(--accent, var(--elastic));
-    display:flex;align-items:center;justify-content:center;
-    transition:transform 0.4s ease, box-shadow 0.4s ease;
-  }
-  .topic:hover .topic-icon{
-    transform:rotate(-8deg) scale(1.08);
-    border-width:2px;
-  }
-  .topic-icon svg{width:22px;height:22px;stroke:var(--accent, var(--elastic));}
-  h2.topic-title{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:clamp(1.3rem, 2.6vw, 1.85rem);
-    margin:0 0 4px 0;
-  }
-  .topic-kicker{
-    font-family:var(--mono);
-    font-size:0.7rem;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--accent, var(--elastic));
-    opacity:0.9;
-  }
-  .topic-teaser{
-    max-width:62ch;
-    color:var(--muted);
-    margin:0 0 22px 74px;
-  }
-  @media (max-width:640px){
-    .topic-teaser{margin-left:0;}
+  function getLyingContent(){
+    return `
+      <div class="article-body reveal in">
+        <h3>Why Do People Lie?</h3>
+        <p>You may wonder why someone would lie to a person they care about. Surprisingly, lying is very common in close relationships. People lie for many different reasons, and while some lies are intended to protect others, others can damage trust. In fact, it was found that only 5% of people reported telling no lies during a given week. That means 95% of people reported lying at least once that week (Miller, 2021).</p>
+        <p>Most lies are told to benefit the person telling them. Reasons for this can include saving themselves from embarrassment, guilt, or inconvenience, seeking approval from someone, or trying to gain something materialistic. In relationships where someone is trying to appeal to a person they are attracted to, people often lie to increase their likeability.</p>
+
+        <h3>Are All Lies Selfish: Benevolent Lies</h3>
+        <p>Not every lie is told for selfish reasons. Some lies are told to protect another person's feelings. This is often done to protect someone's feelings and advance their interests. People are very likely to lie when they believe the truth would hurt another person's feelings.</p>
+        <p>Some lies are told simply to maintain polite and friendly interactions. People may pretend to agree with someone, compliment something they don't actually like, or express more enthusiasm than they actually feel. These types of lies are known as benevolent lies because they are meant to protect someone else, instead of benefitting the person telling the lie.</p>
+
+        <h3>Lying Between Partners</h3>
+        <p>Even in healthy relationships, partners aren't completely honest with one another. They might express more affection than they actually feel or tell their partner they're more attractive than they personally believe.</p>
+        <p>Overall, people tell fewer lies to those they are closest to, and those lies are generally less self-serving than the lies they tell strangers or acquaintances. However, when someone tells a lie about serious topics that can destroy their reputation or relationship, they're more likely to tell those lies to their closest partners than anyone else.</p>
+        <p>Even when a lie goes undetected, people generally describe those interactions as less pleasant, less intimate, and more uncomfortable than honest conversations.</p>
+
+        <h3>Deceiver's Distrust: Why Liars Become More Suspicious</h3>
+        <p>Surprisingly, lying can also change how the person telling the lie views their partner. This is called deceiver's distrust. When people lie to others, they often begin to perceive the person they are lying to as less honest and trustworthy. This seems to occur because the person who is lying assumes that the other person is just like them.</p>
+        <p>Believing that someone else is dishonest can also make the liar feel better about themselves. People who tell lies in relationships often perceive their lies as being less harmful than the person who is actually receiving the lie experiences them to be.</p>
+
+        <h3>All About Lies and Liars</h3>
+        <p>Some people lie more than others. People who are more concerned about the impression they leave on others and who are more outgoing tend to tell more lies than those who are not. Someone who has a secure attachment style tells fewer lies than someone who has a more insecure attachment style.</p>
+        <p>People often lie better when there is high motivation, such as guilt or fear. Lies are often shorter and less detailed than truthful stories.</p>
+        <p>There is a common misconception that when people lie they become fidgety, avoid eye contact, appear shifty, or look nervous. However, liars can also appear calm and confident. A more reliable way to determine whether someone is lying is by paying attention to what they are saying rather than how they are saying it. For example, inconsistent statements or differences between verbal and non-verbal communication may suggest deception.</p>
+      </div>
+
+      <figure class="article-figure reveal in">
+        <img src="images/lying-couple.png" alt="couple arguing">
+      </figure>
+
+      <div class="article-body reveal in">
+        <h3>How Well Can We Detect a Partner's Lie?</h3>
+        <p>Specific reactions that seem to indicate someone is lying do not always have a clear cause. People have different mannerisms, which makes detecting lies difficult. Although lying often causes changes in behaviour, you usually have to be familiar with a person before you can recognize those changes.</p>
+        <p>People can learn to detect lies in others. In close relationships, partners often know each other very well, making changes in behaviour easier to notice. However, people in close relationships also have truth bias, meaning they naturally believe the other person is telling the truth. As relationships develop, trust increases, which also decreases the perception that the other person is lying.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--plastic)">
+        <div class="topic-kicker">Reflection question</div>
+        <p>Do you think every lie damages a relationship, or are some lies easier to forgive than others? Why?</p>
+      </div>
+    `;
   }
 
-  .placeholder{
-    margin-left:74px;
-    border:1.5px dashed var(--accent, var(--fracture));
-    background:var(--bg-panel);
-    border-radius:4px;
-    padding:20px 22px;
-    position:relative;
-    font-family:var(--mono);
-    font-size:0.82rem;
-    color:var(--muted);
-  }
-  @media (max-width:640px){
-    .placeholder{margin-left:0;}
-  }
-  .placeholder .tag{
-    position:absolute;
-    top:-11px;
-    left:16px;
-    background:var(--bg);
-    padding:0 8px;
-    font-size:0.65rem;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--accent, var(--fracture));
-  }
-  .placeholder p{margin:0 0 8px 0;}
-  .placeholder p:last-child{margin-bottom:0;}
-  .prompt-line{
-    margin-top:14px;
-    padding-top:12px;
-    border-top:1px dotted var(--line);
-    font-style:italic;
-    color:var(--accent, var(--elastic));
+  function buildBetrayalArticle(){
+    return `
+      <div class="article-body reveal in">
+        <h3>Why Betrayal Hurts So Much</h3>
+        <p>Betrayal is one of the most painful experiences a person can go through. It occurs when someone we trust violates that trust, leaving us feeling hurt, disappointed, angry, or even confused. Whether it happens in a friendship, family relationship, or romantic relationship, betrayal can have lasting effects on both the relationship and the people involved.</p>
+        <p>People don't always do what we want them to do or what we expect them to do. Some surprises our partners give us can be positive, while others can be harmful. Betrayal can occur when someone does something that does not align with the standards and expectations we have for them. Common types of betrayal in close relationships include infidelity and lying. However, behaviours that violate benevolence, loyalty, respect, and trustworthiness, qualities that support intimate relationships, can also be considered forms of betrayal.</p>
+      </div>
+
+      <figure class="article-figure reveal in">
+        <img src="images/betrayal-phone.png" alt="woman confronting man about his phone">
+      </figure>
+
+      <div class="article-body reveal in">
+        <p>Other examples of betrayal include gossiping, revealing secrets, making hurtful jokes, breaking promises, or failing to provide support when it is needed. These actions can lead to painful drops in how someone views the value of the relationship. When we experience betrayal, it can feel like the other person does not value the relationship as much as we thought they did.</p>
+        <p>When we are in a close relationship with someone, it is unfortunately possible to feel betrayed and hurt by them in ways that no one else can. Often, the people who hurt us the most are close friends, family members, or romantic partners because we trust and care about them deeply. However, these individuals are not always trying to intentionally hurt us. Caring and trust are important parts of intimacy, but maintaining multiple close relationships can sometimes be difficult. Trying to balance different relationships can lead to misunderstandings, disappointment, and feelings of disconnect.</p>
+        <p>For example, imagine two friends are hosting birthday parties on the same day. It may be difficult to decide which party to attend, and one friend may end up feeling hurt or disappointed. Although there may not be harmful intentions, the situation can still create feelings of betrayal.</p>
+
+        <h3>Does Everyone Experience Betrayal the Same Way?</h3>
+        <p>Betrayal is more common among some individuals than others. Research suggests that betrayal is less common among people who are older, more educated, and more religious (NEED CITATION HERE). People who betray others often experience lower levels of happiness and may be more resentful or suspicious of others. They may also be more likely to experience jealousy and have a history of unstable family relationships.</p>
+        <p>People who betray others often struggle with trust because they may believe that other people's motives are not genuine. This can happen because they view others through their own experiences and behaviours. Research also suggests that men may be more likely to betray romantic partners, while women may be more likely to experience betrayal within friendships or family relationships.</p>
+
+        <h3>The Two Sides of Betrayal</h3>
+        <p>People who betray their intimate partners often underestimate the amount of harm they cause. Unlike simple lying, betrayal can involve deeper violations of trust and the expectations people have within close relationships. Those who commit betrayal may try to minimize their actions or convince themselves that what they did was not as harmful as it actually was.</p>
+        <p>However, for the person who experiences betrayal, the emotional impact can be much greater. Feelings of hurt, disappointment, anger, and loss of trust can strongly affect how they view the relationship moving forward.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--plastic)">
+        <div class="topic-kicker">Discussion question</div>
+        <p>Have you ever experienced betrayal in a close relationship? How did it affect your trust and view of that relationship?</p>
+      </div>
+    `;
   }
 
-  .flip-row{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
-    gap:18px;
-    margin:26px 0 26px 74px;
-  }
-  @media (max-width:640px){.flip-row{margin-left:0;}}
-  .flip-card{
-    perspective:1000px;
-    height:150px;
-  }
-  .flip-inner{
-    position:relative;
-    width:100%;height:100%;
-    transition:transform 0.6s cubic-bezier(.3,.7,.3,1);
-    transform-style:preserve-3d;
-  }
-  .flip-card:hover .flip-inner{transform:rotateY(180deg);}
-  .flip-face{
-    position:absolute;
-    inset:0;
-    backface-visibility:hidden;
-    border-radius:6px;
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-  }
-  .flip-front{
-    background:linear-gradient(135deg, var(--yield), var(--plastic));
-    color:#241A0C;
-    box-shadow:0 6px 18px rgba(0,0,0,0.3);
-  }
-  .flip-front .fl-label{
-    font-family:var(--mono);
-    font-size:0.65rem;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    opacity:0.75;
-  }
-  .flip-front h3{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.15rem;
-    margin:6px 0 0 0;
-  }
-  .flip-back{
-    background:var(--bg-card);
-    transform:rotateY(180deg);
-    font-size:0.85rem;
-    border:1px solid var(--yield);
-    color:var(--muted);
+  function buildRevengeArticle(){
+    return `
+      <div class="article-body reveal in">
+        <p>Imagine this:</p>
+        <p>Your best friend shares an embarrassing story about you in front of a group of people, even though you trusted them to keep it private. Everyone laughs, but you feel humiliated. You feel betrayed. Later that day, you notice they accidentally left their phone behind. For a brief moment, you think about posting one of their embarrassing photos online or telling one of their secrets just to make them feel the same way you did.</p>
+      </div>
+
+      <ul class="quote-list">
+        <li>Would getting even make you feel better?</li>
+        <li>Would it repair the friendship they just broke?</li>
+        <li>Or would it simply cause more pain?</li>
+      </ul>
+
+      <figure class="article-figure reveal in">
+        <img src="images/revenge-gossip.png" alt="friends gossiping">
+      </figure>
+
+      <div class="article-body reveal in">
+        <h3>Understanding Revenge</h3>
+        <p>Revenge is often an outcome of betrayal or lying. When people feel that they have been wronged, hurt, or disrespected by someone they trust, they may experience a strong desire to get back at that person. This desire usually comes from wanting the other person to understand the pain they caused or wanting to feel like justice has been restored.</p>
+        <p>However, although revenge may feel justified in the moment, it often creates more problems than it solves. The desire for revenge is usually connected to strong emotions such as anger, disappointment, and feelings of unfairness. These emotions can make it difficult to think about the long-term consequences of seeking revenge.</p>
+
+        <h3>Why Can Revenge Be a Bad Idea?</h3>
+        <p>Revenge is often considered a harmful response because it can create an ongoing cycle of hurt. One person causes harm, the other person responds by hurting them back, and the cycle continues. In these situations, it becomes difficult to determine who is the victim and who is the perpetrator because both people may believe that they are the one who was wronged.</p>
+        <p>People also often disagree about what level of punishment or retaliation is deserved. One person may believe that their actions are justified because they were hurt first, while the other person may believe that the response was worse than the original action. This creates a cycle where both people continue to focus on proving that they were the one who was harmed.</p>
+        <p>For example, if someone lies to their partner and their partner responds by trying to embarrass them publicly, the person who lied may focus on the embarrassment they experienced rather than recognizing the original betrayal. Both people may begin to see themselves as the victim, making it harder to resolve the conflict.</p>
+
+        <h3>The Double Standard of Revenge</h3>
+        <p>Another reason revenge can be difficult to justify is because people often have a double standard when it comes to being hurt.</p>
+        <p>Some individuals may believe that it is acceptable when they hurt someone else, but when someone hurts them in return, they view it as unfair. People naturally tend to judge their own actions based on their intentions while judging others based on the impact of their actions.</p>
+        <p>This makes revenge complicated because both people may believe they are justified. Instead of repairing the relationship, revenge often creates more resentment, anger, and distance between people.</p>
+
+        <h3>Revenge Is Not Always as Satisfying as It Seems</h3>
+        <p>Often, the idea of revenge feels much better than the actual experience of revenge. When someone imagines revenge or plans how they will get back at another person, it can temporarily create a sense of control or satisfaction.</p>
+        <p>However, acting on revenge does not always provide the emotional relief people expect. Instead, it can make it harder to heal from the original hurt because the person remains focused on the person who harmed them.</p>
+        <p>People who make seeking revenge their main goal may hold onto their anger and pain for longer than people who accept the hurt, find healthy ways to cope, and move forward. While revenge may provide temporary satisfaction, it does not always address the deeper emotional pain caused by betrayal.</p>
+
+        <h3>Seeking Revenge to Be Seen</h3>
+        <p>Many people seek revenge because they want the other person to recognize the pain they caused. Revenge can feel more meaningful when the person who caused harm understands the consequences of their actions.</p>
+        <p>However, revenge often becomes less satisfying when the other person does not recognize why they are being punished. Think about how often someone actually admits that they understand they caused another person pain. In many situations, this rarely happens.</p>
+        <p>When the person who caused harm does not acknowledge their actions, the person seeking revenge may feel even more frustrated and disappointed. Instead of receiving closure, they may experience more anger.</p>
+        <p>Research suggests that people who focus heavily on revenge often experience more unhappiness compared to those who find healthier ways to cope with hurt. In close relationships, people who seek revenge may also engage in manipulative or harmful behaviours that make rebuilding trust even more difficult.</p>
+        <p>Although being hurt by someone can create a strong desire to hurt them back, revenge often prevents people from moving forward. Healing usually requires understanding the hurt, processing emotions, and deciding what actions will actually help restore personal well-being.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--fracture)">
+      <div class="topic-kicker">Discussion</div>
+      <p>When you seek revenge, what usually drives the urge to seek it?</p>
+      </div>
+    `;
   }
 
-  .note{
-    display:inline-block;
-    background:#FFE07D;
-    border:1px solid rgba(0,0,0,0.1);
-    box-shadow:3px 4px 10px rgba(0,0,0,0.35);
-    padding:12px 16px;
-    font-family:var(--mono);
-    font-size:0.78rem;
-    color:#332405;
-    margin:6px 10px 6px 74px;
-    transform:rotate(-2deg);
-    transition:transform 0.25s ease;
-  }
-  .note:hover{transform:rotate(0deg) scale(1.05);}
-  @media (max-width:640px){.note{margin-left:0;}}
+  function buildForgivenessArtcile(){
+    return `
+      <figure class="article-figure reveal in">
+        <img src="images/forgiveness-hug.png" alt="two friends hugging">
+      </figure>
 
-  .fracture-block{
-    margin:40px 74px 40px 74px;
-    text-align:center;
-    padding:34px 20px;
-    position:relative;
-  }
-  @media (max-width:640px){.fracture-block{margin:40px 0;}}
-  .crack{
-    width:80%;
-    max-width:340px;
-    margin:0 auto 18px auto;
-    display:block;
-  }
-  .crack path{
-    fill:none;
-    stroke:var(--fracture);
-    stroke-width:2.4;
-    stroke-dasharray:300;
-    stroke-dashoffset:300;
-  }
-  .fracture-block.in .crack path{
-    animation:crack-draw 1s ease forwards;
-  }
-  @keyframes crack-draw{to{stroke-dashoffset:0;}}
-  .fracture-word{
-    font-family:var(--serif);
-    font-style:italic;
-    font-weight:600;
-    font-size:1.6rem;
-    color:var(--fracture);
+      <div class="article-body reveal in">
+        <h3>What Does It Really Mean to Forgive?</h3>
+        <p>When someone hurts us, forgiving them is often one of the hardest things to do. Forgiveness does not mean that what the other person did was okay or that we have to forget what happened. Instead, forgiveness is the decision to let go of anger, resentment, and the desire to get revenge. It's about choosing to move forward rather than staying stuck in the pain.</p>
+        <p>Forgiveness can be an important part of repairing a relationship after betrayal, but it is not always easy. According to researchers, forgiveness is giving up the desire to "get even" with someone who has wronged you. Instead of continuing a cycle of hurt and retaliation, forgiveness allows both people the opportunity to heal and rebuild trust if they are both willing to put in the effort.</p>
+
+        <h3>Why is Forgiveness So Difficult?</h3>
+        <p>Everyone forgives differently. Some people find it easier to forgive because they are more empathetic, emotionally secure, or better at managing their emotions. Others may struggle because they continue thinking about the betrayal, hold onto resentment, or have difficulty trusting others again.</p>
+        <p>Forgiveness is also harder when the person who caused the hurt refuses to take responsibility for their actions. A sincere apology, accepting responsibility, showing genuine remorse, and making an effort to change all make forgiveness more likely. On the other hand, making excuses or giving an insincere apology often makes it much more difficult for the injured person to move on.</p>
+
+        <h3>Does Forgiveness Have Limits?</h3>
+        <p>Forgiveness does not only help the relationship, it can also improve a person's own well-being. Research has found that people who forgive often experience less anger, stress, and hostility, while also reporting greater life satisfaction and better overall health. In close relationships, forgiveness can reduce conflict, encourage honest communication, and make rebuilding trust more possible.</p>
+        <p>However, forgiveness has limits. It does not mean staying in a relationship where someone repeatedly lies, cheats, or continues to cause harm without changing. Constantly forgiving someone who never takes responsibility can damage self-respect and prevent real problems from being solved. Forgiveness is healthiest when the person who caused the hurt is genuinely sorry and is willing to change their behavior.</p>
+
+        <h3>The Bottom Line</h3>
+        <p>Forgiveness is not about pretending the hurt never happened. It is about making a conscious choice to let go of resentment and deciding whether the relationship is worth repairing. While forgiveness can strengthen relationships and improve emotional well-being, it should not come at the cost of accepting repeated disrespect or unhealthy behavior. Healthy forgiveness requires honesty, accountability, empathy, and a genuine commitment to rebuilding trust.</p>
+      </div>
+
+      <div class="reflection-callout reveal in" style="--accent:var(--repair)">
+        <div class="topic-kicker">Reflection question</div>
+        <p>Can a relationship truly recover through forgiveness if the person who caused the betrayal never takes full responsibility for their actions? Why or why not?</p>
+      </div>
+
+    `;
   }
 
-  .case-study{
-    margin-left:74px;
-    border-left:3px solid var(--seam);
-    padding:6px 0 6px 22px;
-  }
-  @media (max-width:640px){.case-study{margin-left:0;}}
-  .case-study h4{
-    font-family:var(--serif);
-    font-weight:600;
-    margin:0 0 6px 0;
-    font-size:1.15rem;
-    color:var(--seam);
-  }
-  .case-study p{color:var(--muted);}
+  if(story){
+    document.title = 'Stress and Strain: ' + story.title.replace(/&rarr;/g, '->');
+    // yeah this is a big if/else chain, probably could be a lookup object
+    // instead but honestly this was easier to add to one at a time as we
+    // wrote each article, not worth refactoring now
+    let bodyHTML;
+    if(slug === 'perceived-relational-value'){
+      bodyHTML = buildPRVArticle();
+    } else if(slug === 'ostracism'){
+      bodyHTML = renderOstracismSection();
+    } else if(slug === 'jealousy-types'){
+      bodyHTML = buildJealousyArticle();
+    } else if(slug === 'evolutionary-perspective'){
+      bodyHTML = renderEvolutionaryContent();
+    } else if(slug === 'lying'){
+      bodyHTML = getLyingContent();
+    } else if(slug === 'betrayal'){
+      bodyHTML = buildBetrayalArticle();
+    } else if(slug === 'revenge'){
+      bodyHTML = buildRevengeArticle();
+    } else if(slug === 'forgiveness-ruth-berger'){
+      bodyHTML = buildForgivenessArtcile();
+    } else {
+      bodyHTML = `<p class="topic-placeholder reveal in" style="--accent:var(--${story.accent})">
+          <span class="draft-tag">Draft</span>${placeholderSentence}
+        </p>`;
+    }
 
-  .engage{
-    margin-top:130px;
-    padding:60px 40px;
-    background:linear-gradient(160deg, var(--bg-panel), #241831);
-    color:var(--ink);
-    border-radius:10px;
-    position:relative;
-    overflow:hidden;
-    border:1px solid var(--line);
-  }
-  .engage h2{
-    font-family:var(--serif);
-    font-size:clamp(1.6rem,3.6vw,2.4rem);
-    margin:0 0 10px 0;
-    max-width:16ch;
-    position:relative;
-  }
-  .engage p.lead{
-    max-width:56ch;
-    color:var(--muted);
-    margin-bottom:30px;
-    position:relative;
-  }
-  .comment-form{
-    display:flex;
-    gap:12px;
-    flex-wrap:wrap;
-    margin-bottom:36px;
-    position:relative;
-  }
-  .comment-form input, .comment-form textarea{
-    font-family:var(--sans);
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.2);
-    border-radius:5px;
-    padding:11px 13px;
-    color:var(--ink);
-    flex:1 1 200px;
-  }
-  .comment-form input:focus, .comment-form textarea:focus{
-    outline:none;
-    border-color:var(--elastic);
-  }
-  .comment-form textarea{flex:1 1 100%; min-height:70px; resize:vertical;}
-  .comment-form ::placeholder{color:#8A84A0;}
-  .comment-form button{
-    font-family:var(--mono);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    font-size:0.78rem;
-    background:linear-gradient(90deg, var(--fracture), var(--repair));
-    color:#20101E;
-    font-weight:600;
-    border:none;
-    padding:12px 22px;
-    border-radius:5px;
-    cursor:pointer;
-    transition:transform 0.15s ease, box-shadow 0.2s ease;
-  }
-  .comment-form button:hover{box-shadow:0 4px 14px rgba(0,0,0,0.35); transform:translateY(-2px);}
-  .comment-form button:active{transform:translateY(0);}
-  #comment-list{
-    display:grid;
-    gap:14px;
-    position:relative;
-  }
-  .comment{
-    background:rgba(255,255,255,0.05);
-    border-left:3px solid var(--seam);
-    padding:14px 16px;
-    border-radius:4px;
-    animation:pop-in 0.4s ease;
-  }
-  @keyframes pop-in{
-    from{opacity:0; transform:translateY(8px);}
-    to{opacity:1; transform:translateY(0);}
-  }
-  .comment .who{
-    font-family:var(--mono);
-    font-size:0.7rem;
-    color:var(--seam);
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    margin-bottom:4px;
-  }
-  .invite-note{
-    margin-top:26px;
-    font-family:var(--mono);
-    font-size:0.72rem;
-    color:#8A84A0;
-    position:relative;
-  }
+    container.innerHTML = `
+      <div class="story-hero reveal in" style="--accent:var(--${story.accent})">
+        <div class="topic-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">${story.icon}</svg></div>
+        <div>
+          <div class="topic-kicker">Story</div>
+          <h1>${story.title}</h1>
+        </div>
+      </div>
+      ${bodyHTML}
 
-  footer{
-    margin-top:80px;
-    padding:40px 0 60px 0;
-    border-top:1px solid var(--line);
-    font-family:var(--mono);
-    font-size:0.75rem;
-    color:var(--muted);
-    display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:16px;
-  }
-  footer .credits div{margin-bottom:4px;}
+      <section class="engage reveal in" id="engage">
+        <h2>Tell us where your line would bend.</h2>
+        <p class="lead">Drop a reflection on this story specifically, a story of your own, or just react to what you read above.</p>
+        <form class="comment-form" id="comment-form">
+          <input type="text" id="name-input" placeholder="Your name" required>
+          <textarea id="msg-input" placeholder="Share a thought or a story of your own" required></textarea>
+          <button type="submit">Post reflection</button>
+        </form>
+        <div id="comment-list"></div>
+      </section>
+    `;
 
-  /* about page - creator cards */
-  .about{
-    margin-top:130px;
-  }
-  .about-head{
-    max-width:60ch;
-    margin-bottom:44px;
-  }
-  .about-head .topic-kicker{color:var(--elastic);}
-  .about-head h2{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:clamp(1.7rem,3.6vw,2.5rem);
-    margin:6px 0 14px 0;
-  }
-  .about-head p{
-    color:var(--muted);
-    max-width:56ch;
-  }
-  .about-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
-    gap:22px;
-  }
-  .creator-card{
-    background:var(--bg-card);
-    border:1px solid var(--line);
-    border-top:3px solid var(--accent, var(--elastic));
-    border-radius:8px;
-    padding:26px 24px;
-    transition:transform 0.35s cubic-bezier(.3,.7,.3,1), box-shadow 0.35s ease;
-  }
-  .creator-card:hover{
-    transform:translateY(-8px);
-    box-shadow:0 14px 30px rgba(0,0,0,0.35);
-  }
-  .creator-avatar{
-    width:58px;height:58px;
-    border-radius:50%;
-    background:linear-gradient(135deg, var(--accent, var(--elastic)), var(--bg-card));
-    display:flex;align-items:center;justify-content:center;
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.15rem;
-    color:#14121B;
-    margin-bottom:18px;
-    transition:transform 0.4s ease;
-  }
-  .creator-card:hover .creator-avatar{transform:rotate(-6deg) scale(1.06);}
-  .creator-name{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.25rem;
-    margin:0 0 6px 0;
-  }
-  .creator-role{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.07em;
-    color:var(--accent, var(--elastic));
-    margin-bottom:14px;
-  }
-  .creator-detail{
-    font-size:0.9rem;
-    color:var(--muted);
-    display:flex;
-    flex-direction:column;
-    gap:4px;
-  }
-  .creator-detail span.school{
-    font-family:var(--mono);
-    font-size:0.75rem;
-    color:var(--ink);
-    opacity:0.8;
+    const form = document.getElementById('comment-form');
+    const list = document.getElementById('comment-list');
+
+    function addComment(c){
+      const div = document.createElement('div');
+      div.className = 'comment';
+      const who = document.createElement('div');
+      who.className = 'who';
+      who.textContent = c.who;
+      const msg = document.createElement('div');
+      msg.textContent = c.msg;
+      div.appendChild(who);
+      div.appendChild(msg);
+      list.appendChild(div);
+    }
+
+    // these are the reflections we got back from people who actually read
+    // through the site, just hardcoded so they show up first before anyone
+    // else adds their own
+    const SEED_COMMENTS = {
+      'perceived-relational-value': [
+        { who: 'Shoba Menikgama', msg: "I think so. People pay a lot of attention to what happens online, so things like being left on read or not being included in a post can make someone feel like they don't matter as much. It doesn't always mean anything, but it's easy to take it personally." }
+      ],
+      'ostracism': [
+        { who: 'Karan Nayyar', msg: "My roommate was upset because I forgot to do the dishes, but instead of telling me, they barely talked to me for the rest of the day. If we had just talked about it right away, it probably wouldn't have turned into such a big deal." },
+        { who: 'Pranav Prasanth', msg: "My girlfriend gave me the silent treatment after I forgot our anniversary. At first, I had no idea why she was upset, which only made things more awkward. Looking back, if she had told me how hurt she felt and I had apologized right away, we probably could have worked it out instead of letting the tension build." }
+      ],
+      'jealousy-types': [
+        { who: 'Tegh Bajwa', msg: "I think a little bit of jealousy is normal in a relationship. It only becomes a problem when it turns into controlling behavior or constant arguments." },
+        { who: 'Oscar Chou', msg: "Honestly, I think everyone gets jealous sometimes. It's normal, but if you're always jealous over little things, it can end up hurting the relationship more than helping it." }
+      ],
+      'lying': [
+        { who: 'Jeremy K. Knight', msg: "I think it depends on the lie. If my girlfriend said she loved the dinner I made even though it wasn't that good, I wouldn't care. But if she lied about where she was or who she was with, I'd probably lose a lot of trust." }
+      ],
+      'betrayal': [
+        { who: "Liam O'Sullivan", msg: "One time my friend told me they couldn't come to my birthday because they had family stuff going on. Later that night, I saw them posting on Instagram hanging out with other people. After that, it was kind of hard to believe what they said, and I definitely trusted them a lot less." }
+      ],
+      'revenge': [
+        { who: 'Aisha Rahman', msg: "I think it's mostly because you want the other person to feel the same hurt they caused you. In the moment, it feels like getting even will make things fair." },
+        { who: 'Marisa Simmons', msg: "One time my friend spread a rumor about me at school, and I wanted to tell everyone something embarrassing about them too. Looking back, it probably would've just made everything worse." }
+      ],
+      'forgiveness-ruth-berger': [
+        { who: 'Priya Ramesh', msg: "I don't think so. I had a friend who betrayed my trust, and they never really admitted they were wrong or apologized. We eventually stopped being friends because it was impossible to move on when they acted like nothing happened. I think forgiveness is a lot easier when both people are willing to take responsibility and work through it together." }
+      ]
+    };
+    (SEED_COMMENTS[slug] || []).forEach(addComment);
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('name-input').value.trim();
+      const msg = document.getElementById('msg-input').value.trim();
+      if(!name || !msg) return;
+      addComment({who:name, msg:msg});
+      form.reset();
+    });
+  } else {
+    container.innerHTML = `
+      <div class="story-hero reveal in">
+        <div>
+          <div class="topic-kicker">Story not found</div>
+          <h1>We could not find that one.</h1>
+        </div>
+      </div>
+      <p class="topic-placeholder reveal in">Head back to the home page and pick a story from the list.</p>
+    `;
   }
 
-  ::selection{background:var(--fracture); color:#fff;}
-
-  /* generic wrapper for pages that arent the home page layout */
-  .simple-main{
-    max-width:900px;
-    margin:0 auto;
-    padding:130px 26px 60px;
-    position:relative;
-    z-index:1;
-  }
-  .page-hero{
-    margin-bottom:56px;
-  }
-  .page-hero h1{
-    font-family:var(--serif);
-    font-weight:700;
-    font-size:clamp(2.1rem, 5vw, 3.4rem);
-    line-height:1.05;
-    margin:14px 0 20px 0;
-    max-width:16ch;
-  }
-  .page-hero p{
-    max-width:60ch;
-    color:var(--muted);
-    font-size:1.05rem;
-  }
-
-  .interview-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
-    gap:22px;
-    margin-top:10px;
-  }
-  .interview-card{
-    background:var(--bg-card);
-    border:1px solid var(--line);
-    border-left:3px solid var(--accent, var(--elastic));
-    border-radius:8px;
-    padding:24px 24px;
-    transition:transform 0.3s cubic-bezier(.3,.7,.3,1);
-  }
-  .interview-card:hover{
-    transform:translateY(-6px);
-  }
-  .interview-topic{
-    font-family:var(--mono);
-    font-size:0.68rem;
-    text-transform:uppercase;
-    letter-spacing:0.07em;
-    color:var(--accent, var(--elastic));
-    margin-bottom:10px;
-  }
-  .interview-meta{
-    font-family:var(--mono);
-    font-size:0.75rem;
-    color:var(--muted);
-    margin-bottom:14px;
-  }
-  .interview-quote{
-    font-family:var(--serif);
-    font-style:italic;
-    font-size:1.05rem;
-    color:var(--ink);
-    margin:0 0 18px 0;
-    line-height:1.5;
-  }
-  .media-placeholder{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    background:var(--bg-panel);
-    border:1px dashed var(--line);
-    border-radius:6px;
-    padding:12px 14px;
-    font-family:var(--mono);
-    font-size:0.72rem;
-    color:var(--muted);
-  }
-  .play-badge{
-    width:30px;height:30px;
-    border-radius:50%;
-    background:var(--accent, var(--elastic));
-    display:flex;align-items:center;justify-content:center;
-    flex:0 0 auto;
-  }
-  .play-badge svg{width:11px;height:11px;fill:#14121B;}
-  .consent-note{
-    margin:46px 0 50px 0;
-    padding:22px 24px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    background:var(--bg-panel);
-    font-size:0.92rem;
-    color:var(--muted);
-  }
-  .consent-note strong{color:var(--ink);}
-
-  .project-glance{
-    display:flex;
-    gap:34px;
-    flex-wrap:wrap;
-    font-family:var(--mono);
-    font-size:0.78rem;
-    color:var(--elastic);
-    margin-bottom:56px;
-    padding-bottom:30px;
-    border-bottom:1px solid var(--line);
-  }
-
-  /* these used to be accordions, switched to plain links so each
-     story opens its own page instead */
-  a.topic-row{
-    display:flex;
-    gap:18px;
-    align-items:flex-start;
-    padding:18px 0;
-    border-bottom:1px solid var(--line);
-    text-decoration:none;
-    color:inherit;
-  }
-  .topic-row .topic-title{
-    transition:text-shadow 0.35s ease, color 0.35s ease;
-  }
-  .topic-row:hover .topic-title{
-    text-shadow:0 0 18px var(--accent, var(--elastic));
-  }
-  .topic-head-text{flex:1 1 auto;}
-  .topic-arrow, .topic-caret{
-    flex:0 0 auto;
-    margin-left:auto;
-    margin-top:12px;
-    color:var(--accent, var(--elastic));
-    transition:transform 0.3s ease;
-  }
-  .topic-arrow svg, .topic-caret svg{width:16px;height:16px;}
-  .topic-row:hover .topic-arrow, .topic-row:hover .topic-caret{transform:translateX(5px);}
-  .draft-tag{
-    display:inline-block;
-    font-family:var(--mono);
-    font-size:0.62rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:var(--accent, var(--elastic));
-    border:1px solid var(--accent, var(--elastic));
-    padding:2px 7px;
-    border-radius:3px;
-    margin-right:9px;
-    vertical-align:middle;
-  }
-  .topic-placeholder{
-    font-family:var(--mono);
-    font-size:0.85rem;
-    line-height:1.7;
-    color:var(--muted);
-    max-width:62ch;
-    margin:0;
-  }
-
-  /* story.html stuff */
-  .back-link{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-family:var(--mono);
-    font-size:0.75rem;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--muted);
-    text-decoration:none;
-    margin-bottom:36px;
-    transition:color 0.2s ease;
-  }
-  .back-link:hover{color:var(--elastic);}
-  .back-link svg{width:14px;height:14px;}
-  .story-hero{
-    display:flex;
-    gap:22px;
-    align-items:flex-start;
-    margin-bottom:36px;
-  }
-  .story-hero .topic-icon{
-    width:60px;height:60px;
-  }
-  .story-hero .topic-icon svg{width:26px;height:26px;}
-  .story-hero h1{
-    font-family:var(--serif);
-    font-weight:700;
-    font-size:clamp(1.8rem, 4vw, 2.7rem);
-    margin:8px 0 0 0;
-    line-height:1.1;
-  }
-
-  /* interview cards - dropdown w/ video player inside */
-  details.interview-card{
-    background:var(--bg-card);
-    border:1px solid var(--line);
-    border-left:3px solid var(--accent, var(--elastic));
-    border-radius:8px;
-    padding:20px 22px;
-    margin-bottom:18px;
-  }
-  summary.interview-summary{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    cursor:pointer;
-    list-style:none;
-    gap:14px;
-  }
-  summary.interview-summary::-webkit-details-marker{display:none;}
-  summary.interview-summary::marker{content:'';}
-  .interview-body{
-    padding-top:20px;
-  }
-  .media-player{
-    background:#0B0A10;
-    border-radius:8px;
-    overflow:hidden;
-    border:1px solid var(--line);
-    margin-top:16px;
-  }
-  .media-player-visual{
-    position:relative;
-    aspect-ratio:16/9;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(160deg, #1B1826, #241831);
-  }
-  .media-play-btn{
-    width:54px;height:54px;
-    border-radius:50%;
-    background:var(--accent, var(--elastic));
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;
-    transition:transform 0.2s ease;
-  }
-  .media-play-btn:hover{transform:scale(1.08);}
-  .media-play-btn svg{width:18px;height:18px;fill:#14121B;margin-left:3px;}
-  .media-controls{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 14px;
-    background:#0B0A10;
-  }
-  .media-progress{
-    flex:1;
-    height:4px;
-    border-radius:2px;
-    background:rgba(255,255,255,0.15);
-    position:relative;
-    overflow:hidden;
-  }
-  .media-progress::after{
-    content:'';
-    position:absolute;
-    left:0; top:0;
-    height:100%;
-    width:26%;
-    background:var(--accent, var(--elastic));
-    border-radius:2px;
-  }
-  .media-time{
-    font-family:var(--mono);
-    font-size:0.68rem;
-    color:var(--muted);
-    white-space:nowrap;
-  }
-  .media-caption{
-    padding:10px 14px;
-    font-family:var(--mono);
-    font-size:0.7rem;
-    color:var(--muted);
-    border-top:1px dashed var(--line);
-  }
-
-  /* the "take the quiz" card on the home page */
-  .quiz-teaser{
-    margin-top:60px;
-    padding:38px 34px;
-    border:1px solid var(--line);
-    border-radius:10px;
-    background:linear-gradient(160deg, var(--bg-panel), #241831);
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:26px;
-    flex-wrap:wrap;
-  }
-  .quiz-teaser h2{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.5rem;
-    margin:0 0 8px 0;
-  }
-  .quiz-teaser p{
-    color:var(--muted);
-    margin:0;
-    max-width:46ch;
-  }
-  .quiz-teaser-btn{
-    font-family:var(--mono);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    font-size:0.78rem;
-    background:linear-gradient(90deg, var(--elastic), var(--repair));
-    color:#14121B;
-    font-weight:600;
-    border:none;
-    padding:14px 26px;
-    border-radius:6px;
-    text-decoration:none;
-    white-space:nowrap;
-    transition:transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .quiz-teaser-btn:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 22px rgba(0,0,0,0.35);
-  }
-
-  /* --- quiz page --- */
-  .quiz-progress{
-    display:flex;
-    gap:8px;
-    margin-bottom:38px;
-  }
-  .quiz-dot{
-    width:10px;height:10px;
-    border-radius:50%;
-    background:var(--line);
-    transition:background 0.3s ease, transform 0.3s ease;
-  }
-  .quiz-dot.done{background:var(--elastic);}
-  .quiz-dot.active{background:var(--fracture); transform:scale(1.3);}
-
-  .quiz-question-num{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    color:var(--muted);
-    margin-bottom:10px;
-  }
-  .quiz-question-text{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:clamp(1.3rem, 3vw, 1.9rem);
-    margin:0 0 30px 0;
-  }
-  .quiz-options{
-    display:grid;
-    gap:14px;
-  }
-  .quiz-option{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
-    background:var(--bg-card);
-    border:1.5px solid var(--line);
-    border-radius:8px;
-    padding:16px 18px;
-    text-align:left;
-    font-family:var(--sans);
-    font-size:0.95rem;
-    color:var(--ink);
-    cursor:pointer;
-    transition:border-color 0.2s ease, transform 0.15s ease, background 0.2s ease;
-    width:100%;
-  }
-  .quiz-option:hover:not(.locked){
-    border-color:var(--elastic);
-    transform:translateX(4px);
-  }
-  .quiz-option .opt-mark{
-    width:20px;height:20px;
-    flex:0 0 auto;
-    opacity:0;
-    transform:scale(0.4);
-    transition:opacity 0.25s ease, transform 0.3s ease;
-  }
-  .quiz-option.correct{
-    border-color:var(--elastic);
-    background:rgba(51,217,178,0.08);
-  }
-  .quiz-option.correct .opt-mark{
-    opacity:1;
-    transform:scale(1);
-    color:var(--elastic);
-  }
-  .quiz-option.wrong{
-    border-color:var(--fracture);
-    background:rgba(255,77,109,0.08);
-  }
-  .quiz-option.wrong .opt-mark{
-    opacity:1;
-    transform:scale(1);
-    color:var(--fracture);
-  }
-  .quiz-option.locked{cursor:default;}
-
-  .quiz-next-wrap{
-    margin-top:30px;
-    text-align:right;
-    opacity:0;
-    transform:translateY(10px);
-    transition:opacity 0.35s ease, transform 0.35s ease;
-    pointer-events:none;
-  }
-  .quiz-next-wrap.show{
-    opacity:1;
-    transform:translateY(0);
-    pointer-events:auto;
-  }
-  .quiz-next-btn{
-    font-family:var(--mono);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    font-size:0.78rem;
-    background:var(--fracture);
-    color:#fff;
-    border:none;
-    padding:12px 24px;
-    border-radius:6px;
-    cursor:pointer;
-    transition:transform 0.15s ease;
-  }
-  .quiz-next-btn:hover{transform:translateY(-2px);}
-
-  .quiz-question-enter{
-    animation:quizSlideIn 0.45s cubic-bezier(.2,.7,.3,1);
-  }
-  @keyframes quizSlideIn{
-    from{opacity:0; transform:translateX(26px);}
-    to{opacity:1; transform:translateX(0);}
-  }
-
-  .quiz-intro{text-align:center; padding:30px 0;}
-  .quiz-intro h1{
-    font-family:var(--serif);
-    font-weight:700;
-    font-size:clamp(1.8rem, 4vw, 2.6rem);
-    margin:10px 0 14px 0;
-  }
-  .quiz-intro p{
-    color:var(--muted);
-    max-width:50ch;
-    margin:0 auto 30px auto;
-  }
-  .quiz-start-btn{
-    font-family:var(--mono);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    font-size:0.8rem;
-    background:linear-gradient(90deg, var(--elastic), var(--repair));
-    color:#14121B;
-    font-weight:600;
-    border:none;
-    padding:15px 30px;
-    border-radius:6px;
-    cursor:pointer;
-    transition:transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .quiz-start-btn:hover{
-    transform:translateY(-2px);
-    box-shadow:0 8px 22px rgba(0,0,0,0.35);
-  }
-
-  .quiz-results{
-    text-align:center;
-    padding:20px 0;
-  }
-  .score-ring{
-    width:180px;height:180px;
-    margin:0 auto 30px auto;
-    position:relative;
-  }
-  .score-ring svg{transform:rotate(-90deg);}
-  .score-ring circle{fill:none; stroke-width:10;}
-  .score-ring .bg{stroke:var(--line);}
-  .score-ring .fg{
-    stroke:var(--elastic);
-    stroke-linecap:round;
-    transition:stroke-dashoffset 1.3s cubic-bezier(.2,.8,.3,1);
-  }
-  .score-num{
-    position:absolute; inset:0;
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--serif); font-weight:700; font-size:2.2rem;
-  }
-  .quiz-results h2{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.6rem;
-    margin:0 0 10px 0;
-  }
-  .quiz-results p.result-msg{
-    color:var(--muted);
-    margin-bottom:30px;
-  }
-  .quiz-results-actions{
-    display:flex;
-    gap:14px;
-    justify-content:center;
-    flex-wrap:wrap;
-  }
-  .quiz-btn-secondary{
-    font-family:var(--mono);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    font-size:0.78rem;
-    border:1px solid var(--line);
-    color:var(--ink);
-    background:transparent;
-    padding:12px 22px;
-    border-radius:6px;
-    cursor:pointer;
-    text-decoration:none;
-    transition:border-color 0.2s ease, color 0.2s ease;
-  }
-  .quiz-btn-secondary:hover{border-color:var(--elastic); color:var(--elastic);}
-
-  /* flip flashcards, only used on the lying page for now */
-  .flashcard-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
-    gap:16px;
-  }
-  .flashcard{
-    perspective:1000px;
-    height:140px;
-    cursor:pointer;
-    opacity:0;
-    transform:scale(0.9);
-    animation:flashcardIn 0.5s ease forwards;
-  }
-  @keyframes flashcardIn{
-    to{opacity:1; transform:scale(1);}
-  }
-  .flashcard-inner{
-    position:relative;
-    width:100%;
-    height:100%;
-    transition:transform 0.6s cubic-bezier(.3,.7,.3,1);
-    transform-style:preserve-3d;
-  }
-  .flashcard.flipped .flashcard-inner{
-    transform:rotateY(180deg);
-  }
-  .flashcard-face{
-    position:absolute;
-    inset:0;
-    backface-visibility:hidden;
-    border-radius:8px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    padding:10px;
-    text-align:center;
-  }
-  .flashcard-front{
-    background:var(--bg-card);
-    border:1.5px solid var(--line);
-    transition:border-color 0.25s ease;
-  }
-  .flashcard:hover .flashcard-front{
-    border-color:var(--plastic);
-  }
-  .flashcard-back{
-    background:linear-gradient(135deg, var(--yield), var(--plastic));
-    color:#241A0C;
-    transform:rotateY(180deg);
-  }
-  .flashcard-num{
-    font-family:var(--mono);
-    font-size:0.65rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:var(--muted);
-  }
-  .flashcard-back .flashcard-num{color:#241A0C; opacity:0.7;}
-  .flashcard-word{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.1rem;
-  }
-  .flashcard-hint{
-    margin-top:18px;
-    font-family:var(--mono);
-    font-size:0.7rem;
-    color:var(--muted);
-  }
-
-  /* the letter on the homepage + the reflection box under it */
-  .letter{
-    max-width:62ch;
-    color:var(--muted);
-    font-size:1.05rem;
-    line-height:1.75;
-    margin-bottom:26px;
-  }
-  .letter p{margin:0 0 18px 0;}
-  .letter p:last-of-type{margin-bottom:0;}
-  .letter em{color:var(--ink); font-style:italic;}
-  .letter-sign{
-    margin-top:20px;
-    color:var(--ink);
-  }
-  .reflection-callout{
-    max-width:62ch;
-    margin-bottom:34px;
-    padding:22px 24px;
-    border-left:3px solid var(--elastic);
-    background:var(--bg-panel);
-    border-radius:6px;
-  }
-  .reflection-callout .topic-kicker{
-    color:var(--elastic);
-  }
-  .reflection-callout p{
-    margin:8px 0 0 0;
-    color:var(--ink);
-    font-style:italic;
-    line-height:1.6;
-  }
-
-  /* article body styling, shared across most of the story pages */
-  .article-body{
-    max-width:68ch;
-    color:var(--muted);
-    font-size:1rem;
-    line-height:1.8;
-  }
-  .article-body p{margin:0 0 20px 0;}
-  .article-body h3{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.3rem;
-    color:var(--ink);
-    margin:38px 0 16px 0;
-  }
-  .article-body strong{color:var(--ink);}
-  .article-body em{color:var(--ink); font-style:italic;}
-
-  .pull-quote{
-    border-left:3px solid var(--accent, var(--elastic));
-    padding:8px 0 8px 22px;
-    margin:0 0 34px 0;
-    font-family:var(--serif);
-    font-style:italic;
-    font-size:1.15rem;
-    color:var(--ink);
-    max-width:64ch;
-  }
-  .pull-quote cite{
-    display:block;
-    margin-top:12px;
-    font-family:var(--mono);
-    font-style:normal;
-    font-size:0.7rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:var(--muted);
-  }
-
-  .article-note{
-    margin:0 0 26px 0;
-    padding:18px 20px;
-    border:1px dashed var(--line);
-    border-radius:6px;
-    background:var(--bg-panel);
-    font-size:0.9rem;
-    color:var(--muted);
-    max-width:64ch;
-  }
-  .article-note strong{color:var(--ink);}
-
-  .spectrum-list{
-    display:grid;
-    gap:12px;
-    margin:22px 0 32px 0;
-    max-width:64ch;
-  }
-  .spectrum-item{
-    padding:14px 16px;
-    border-left:3px solid var(--line);
-    background:var(--bg-card);
-    border-radius:4px;
-  }
-  .spectrum-item h4{
-    margin:0 0 6px 0;
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1rem;
-    color:var(--ink);
-  }
-  .spectrum-item p{margin:0; color:var(--muted); font-size:0.9rem;}
-  .spectrum-item.accept{border-left-color:var(--elastic);}
-  .spectrum-item.neutral{border-left-color:var(--yield);}
-  .spectrum-item.reject{border-left-color:var(--fracture);}
-
-  /* small citation line under stuff that needs a source */
-  .source-note{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    color:var(--muted);
-    margin:-14px 0 32px 0;
-    max-width:64ch;
-  }
-
-  /* dictionary style def box + the quote list, used in ostracism */
-  .definition-box{
-    border:1px solid var(--line);
-    border-left:3px solid var(--accent, var(--elastic));
-    background:var(--bg-card);
-    border-radius:6px;
-    padding:18px 20px;
-    margin:0 0 30px 0;
-    max-width:64ch;
-  }
-  .definition-box .term{
-    font-family:var(--serif);
-    font-weight:600;
-    font-style:italic;
-    color:var(--ink);
-    margin-right:6px;
-  }
-  .definition-box .pos{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    color:var(--muted);
-    margin-right:6px;
-  }
-  .quote-list{
-    list-style:none;
-    margin:0 0 24px 0;
-    padding:0;
-    max-width:60ch;
-  }
-  .quote-list li{
-    font-family:var(--serif);
-    font-style:italic;
-    color:var(--ink);
-    padding:8px 0 8px 18px;
-    border-left:2px solid var(--line);
-    margin-bottom:8px;
-  }
-
-  /* images inside articles */
-  .article-figure{
-    margin:0 0 30px 0;
-    max-width:64ch;
-  }
-  .article-figure img{
-    width:100%;
-    display:block;
-    border-radius:8px;
-    border:1px solid var(--line);
-  }
-  .article-figure figcaption{
-    margin-top:10px;
-    font-family:var(--mono);
-    font-size:0.7rem;
-    color:var(--muted);
-  }
-
-  /* the reactive vs suspicious jealousy table */
-  .table-scroll{
-    overflow-x:auto;
-    margin:22px 0 32px 0;
-    max-width:70ch;
-  }
-  .jealousy-table{
-    width:100%;
-    min-width:520px;
-    border-collapse:separate;
-    border-spacing:0;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 16px 40px rgba(0,0,0,0.35);
-  }
-  .jealousy-table thead th{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.05rem;
-    padding:20px 20px 18px 20px;
-    text-align:left;
-    color:#14121B;
-  }
-  .jealousy-table th.reactive{
-    background:linear-gradient(135deg, var(--yield), #FFE1A3);
-  }
-  .jealousy-table th.suspicious{
-    background:linear-gradient(135deg, var(--fracture), #FF9AAC);
-  }
-  .th-icon{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:28px;height:28px;
-    border-radius:50%;
-    background:rgba(20,18,27,0.16);
-    margin-right:10px;
-    vertical-align:middle;
-  }
-  .th-icon svg{width:14px;height:14px;}
-
-  .jealousy-table tbody tr{
-    opacity:0;
-    transform:translateY(16px);
-    animation:rowIn 0.55s cubic-bezier(.2,.7,.3,1) forwards;
-  }
-  .jealousy-table tbody tr:nth-child(1){animation-delay:0.05s;}
-  .jealousy-table tbody tr:nth-child(2){animation-delay:0.16s;}
-  .jealousy-table tbody tr:nth-child(3){animation-delay:0.27s;}
-  .jealousy-table tbody tr:nth-child(4){animation-delay:0.38s;}
-  @keyframes rowIn{
-    to{opacity:1; transform:translateY(0);}
-  }
-
-  .jealousy-table td{
-    padding:16px 20px;
-    vertical-align:top;
-    font-size:0.88rem;
-    color:var(--muted);
-    border-top:1px solid var(--line);
-    border-left:3px solid transparent;
-    background:var(--bg-card);
-    position:relative;
-    transition:transform 0.25s cubic-bezier(.2,.7,.3,1), box-shadow 0.25s ease, border-color 0.25s ease;
-  }
-  .jealousy-table tbody tr:nth-child(even) td{background:var(--bg-panel);}
-  .jealousy-table tbody tr:hover td{
-    transform:translateY(-4px);
-    box-shadow:0 14px 26px rgba(0,0,0,0.4);
-    z-index:1;
-  }
-  .jealousy-table tbody tr:hover td:first-child{border-left-color:var(--yield);}
-  .jealousy-table tbody tr:hover td:last-child{border-left-color:var(--fracture);}
-  .jealousy-table td:first-child{border-right:1px solid var(--line);}
-  .jealousy-table strong.row-label{
-    display:block;
-    font-family:var(--mono);
-    font-size:0.65rem;
-    text-transform:uppercase;
-    letter-spacing:0.07em;
-    color:var(--ink);
-    opacity:0.6;
-    margin-bottom:6px;
-    transition:opacity 0.25s ease;
-  }
-  .jealousy-table tbody tr:hover strong.row-label{opacity:1;}
-
-
-  /* the A/B question cards on evolutionary perspective */
-  .choice-list{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-    margin:22px 0 28px 0;
-    max-width:64ch;
-  }
-  @media (max-width:640px){
-    .choice-list{grid-template-columns:1fr;}
-  }
-  .choice-item{
-    padding:16px 18px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    background:var(--bg-card);
-    display:flex;
-    gap:12px;
-    align-items:flex-start;
-  }
-  .choice-letter{
-    font-family:var(--serif);
-    font-weight:700;
-    font-size:1.1rem;
-    color:var(--yield);
-    flex:0 0 auto;
-  }
-  .choice-item p{margin:0; color:var(--muted); font-size:0.9rem;}
-
-  /* men vs women bar chart - this one took forever to get looking right */
-  .stat-chart{
-    max-width:64ch;
-    margin:0 0 32px 0;
-  }
-  .chart-legend{
-    display:flex;
-    gap:22px;
-    margin-bottom:14px;
-    font-family:var(--mono);
-    font-size:0.75rem;
-    color:var(--muted);
-  }
-  .legend-item{
-    display:flex;
-    align-items:center;
-    gap:7px;
-  }
-  .legend-swatch{
-    width:12px;height:12px;
-    border-radius:2px;
-    display:inline-block;
-  }
-  .legend-swatch.men{background:var(--yield); box-shadow:0 0 8px var(--yield);}
-  .legend-swatch.women{background:var(--fracture); box-shadow:0 0 8px var(--fracture);}
-  .chart-svg{
-    width:100%;
-    height:auto;
-    display:block;
-    overflow:visible;
-  }
-  .chart-grid-line{stroke:var(--line); stroke-width:1;}
-  .chart-axis-label{
-    font-family:var(--mono);
-    font-size:9px;
-    fill:var(--muted);
-  }
-  .chart-value-label{
-    font-family:var(--mono);
-    font-size:11px;
-    font-weight:700;
-    fill:var(--ink);
-  }
-  .chart-bar-group{
-    transform-box:fill-box;
-    transform-origin:center bottom;
-    transform:scaleY(0);
-    animation:barGrow3d 0.75s cubic-bezier(.2,.8,.3,1) forwards;
-    filter:drop-shadow(0 0 0px transparent);
-    transition:filter 0.35s ease;
-    cursor:pointer;
-  }
-  .chart-bar-group:hover{
-    filter:drop-shadow(0 0 8px var(--glow)) drop-shadow(0 0 18px var(--glow));
-  }
-  .chart-bar-group.men{--glow:var(--yield);}
-  .chart-bar-group.women{--glow:var(--fracture);}
-  @keyframes barGrow3d{
-    to{transform:scaleY(1);}
-  }
-  .chart-face-front{opacity:1;}
-  .chart-face-top{opacity:0.92;}
-  .chart-face-side{opacity:0.85;}
-  .chart-x-labels{
-    display:flex;
-    justify-content:space-around;
-    margin-top:10px;
-    gap:14px;
-  }
-  .chart-x-label{
-    font-family:var(--serif);
-    font-style:italic;
-    font-size:0.85rem;
-    color:var(--ink);
-    text-align:center;
-    max-width:46%;
-    line-height:1.4;
-  }
-  .chart-caption{
-    font-family:var(--mono);
-    font-size:0.7rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:var(--muted);
-    text-align:center;
-    margin-top:10px;
-  }
-
-  /* smaller image variant for phone screenshots */
-  .article-figure.narrow{
-    float:right;
-    max-width:190px;
-    margin:4px 0 14px 22px;
-  }
-  .article-body h3{clear:both;}
-  @media (max-width:640px){
-    .article-figure.narrow{
-      float:none;
-      max-width:220px;
-      margin:0 auto 14px auto;
+  const bar = document.getElementById('progress-bar');
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrollTop = h.scrollTop || document.body.scrollTop;
+    const scrollHeight = h.scrollHeight - h.clientHeight;
+    const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+    bar.style.backgroundPosition = pct + '% 0%';
+  }
+  let ticking = false;
+  function onScroll(){
+    if(!ticking){
+      window.requestAnimationFrame(()=>{ updateProgress(); ticking = false; });
+      ticking = true;
     }
   }
+  window.addEventListener('scroll', onScroll);
+  window.addEventListener('resize', onScroll);
+  onScroll();
+</script>
 
-  /* reviews section - not on homepage anymore, moved to story pages */
-  .reviews-section{
-    margin-top:60px;
-  }
-  .reviews-title{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.4rem;
-    margin:0 0 20px 0;
-  }
-  .reviews-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-    gap:16px;
-  }
-  .review-card{
-    background:var(--bg-card);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:18px 20px;
-  }
-  .review-text{
-    margin:0 0 12px 0;
-    color:var(--ink);
-    font-size:0.92rem;
-    line-height:1.55;
-  }
-  .review-author{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:var(--muted);
-  }
-
-  /* the two big photos on the homepage */
-  .mood-banner{
-    margin:70px 0;
-    border-radius:12px;
-    overflow:hidden;
-    border:1px solid var(--line);
-    position:relative;
-  }
-  .mood-banner img{
-    width:100%;
-    height:auto;
-    max-height:340px;
-    object-fit:cover;
-    display:block;
-    filter:saturate(0.85) contrast(1.05);
-    transition:transform 0.6s cubic-bezier(.2,.7,.3,1), filter 0.6s ease;
-  }
-  .mood-banner:hover img{
-    transform:scale(1.04);
-    filter:saturate(1) contrast(1.08);
-  }
-  .mood-banner::after{
-    content:'';
-    position:absolute;
-    inset:0;
-    background:linear-gradient(to top, var(--bg) 0%, transparent 35%);
-    pointer-events:none;
-  }
-  .mood-caption{
-    position:absolute;
-    left:24px;
-    bottom:14px;
-    font-family:var(--mono);
-    font-size:0.72rem;
-    text-transform:uppercase;
-    letter-spacing:0.07em;
-    color:var(--ink);
-    opacity:0.85;
-  }
-
-  /* actual <video> tag styling if we ever upload real clips */
-  .media-video{
-    width:100%;
-    aspect-ratio:16/9;
-    display:block;
-    background:#000;
-  }
-
-  /* iframe embed - not really used anymore, see media-yt-link below */
-  .media-embed{
-    position:relative;
-    aspect-ratio:16/9;
-    overflow:hidden;
-  }
-  .media-embed iframe{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    border:0;
-  }
-
-  /* thumbnail + link out to youtube, since embedding kept getting blocked */
-  .media-yt-link{
-    position:relative;
-    display:block;
-    aspect-ratio:16/9;
-    background:#000;
-    overflow:hidden;
-    text-decoration:none;
-  }
-  .media-yt-link img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    opacity:0.72;
-    transition:opacity 0.25s ease, transform 0.4s ease;
-  }
-  .media-yt-link:hover img{
-    opacity:0.9;
-    transform:scale(1.03);
-  }
-  .media-yt-link .media-play-btn{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-  }
-  .media-yt-link:hover .media-play-btn{
-    transform:translate(-50%,-50%) scale(1.08);
-  }
-  .media-yt-label{
-    position:absolute;
-    left:14px;
-    bottom:12px;
-    font-family:var(--mono);
-    font-size:0.7rem;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:#fff;
-    background:rgba(0,0,0,0.55);
-    padding:4px 9px;
-    border-radius:4px;
-  }
+</body>
+</html>

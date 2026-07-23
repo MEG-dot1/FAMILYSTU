@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stress and Strain: Quiz</title>
+<title>Stress and Strain: Interviews</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -26,12 +26,95 @@
 
 <main class="simple-main">
 
-  <a class="back-link reveal in" href="index.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-    Back to home
-  </a>
+  <div class="page-hero reveal in">
+    <div class="eyebrow">Interviews &amp; real stories</div>
+    <h1>What real people are saying.</h1>
+    <p>To go along with the concepts on the home page, we pulled together a few videos that dig deeper into some of these ideas, ostracism, jealousy, lying, and revenge, from people who explain the psychology behind them well. Click a topic below to open it up and watch the clip.</p>
+  </div>
 
-  <div id="quiz-app"></div>
+  <section class="reveal">
+
+    <details class="interview-card" style="--accent:var(--elastic)">
+      <summary class="interview-summary">
+        <div>
+          <div class="interview-topic">Ostracism</div>
+          <div class="interview-meta">Video</div>
+        </div>
+        <div class="topic-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      </summary>
+      <div class="interview-body">
+        <p class="interview-quote">Why does being ignored hurt so much?</p>
+        <div class="media-player">
+          <a class="media-yt-link" href="https://www.youtube.com/watch?v=UpD5h1eoiP0" target="_blank" rel="noopener">
+            <img src="https://img.youtube.com/vi/UpD5h1eoiP0/hqdefault.jpg" alt="Video thumbnail: Ostracism, why does being ignored hurt so much">
+            <div class="media-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            <span class="media-yt-label">Watch on YouTube</span>
+          </a>
+        </div>
+      </div>
+    </details>
+
+    <details class="interview-card" style="--accent:var(--yield)">
+      <summary class="interview-summary">
+        <div>
+          <div class="interview-topic">Types of jealousy</div>
+          <div class="interview-meta">Video</div>
+        </div>
+        <div class="topic-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      </summary>
+      <div class="interview-body">
+        <p class="interview-quote">The evolutionary psychology of jealousy</p>
+        <div class="media-player">
+          <a class="media-yt-link" href="https://www.youtube.com/watch?v=_BwxCI_AQMs" target="_blank" rel="noopener">
+            <img src="https://img.youtube.com/vi/_BwxCI_AQMs/hqdefault.jpg" alt="Video thumbnail: The evolutionary psychology of jealousy">
+            <div class="media-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            <span class="media-yt-label">Watch on YouTube</span>
+          </a>
+        </div>
+      </div>
+    </details>
+
+    <details class="interview-card" style="--accent:var(--plastic)">
+      <summary class="interview-summary">
+        <div>
+          <div class="interview-topic">Why Do We Lie to The People We Care About?</div>
+          <div class="interview-meta">Video</div>
+        </div>
+        <div class="topic-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      </summary>
+      <div class="interview-body">
+        <p class="interview-quote">Lying</p>
+        <div class="media-player">
+          <a class="media-yt-link" href="https://youtu.be/H0-WkpmTPrM" target="_blank" rel="noopener">
+            <img src="https://img.youtube.com/vi/H0-WkpmTPrM/hqdefault.jpg" alt="Video thumbnail: Lying">
+            <div class="media-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            <span class="media-yt-label">Watch on YouTube</span>
+          </a>
+        </div>
+      </div>
+    </details>
+
+    <details class="interview-card" style="--accent:var(--fracture)">
+      <summary class="interview-summary">
+        <div>
+          <div class="interview-topic">Revenge</div>
+          <div class="interview-meta">Video</div>
+        </div>
+        <div class="topic-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      </summary>
+      <div class="interview-body">
+        <p class="interview-quote">Revenge</p>
+        <div class="media-player">
+          <a class="media-yt-link" href="https://www.youtube.com/shorts/ubGWZzrRQvY" target="_blank" rel="noopener">
+            <img src="https://img.youtube.com/vi/ubGWZzrRQvY/hqdefault.jpg" alt="Video thumbnail: Revenge">
+            <div class="media-play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+            <span class="media-yt-label">Watch on YouTube</span>
+          </a>
+        </div>
+      </div>
+    </details>
+
+  </section>
 
   <footer>
     <div>FAMLYSTU group 84</div>
@@ -40,263 +123,17 @@
 </main>
 
 <script>
-  // combined quiz - covers all the articles now, used to be split into two
-  // separate 5 question quizzes but merged into one at the bottom of the
-  // page instead. "correct" is the index into the options array (0 = first)
-  const QUESTIONS = [
-    {
-      q: "Sarah notices that her friends made plans without inviting her. They never told her she couldn't come, but they also didn't make any effort to include her. According to the textbook, which concept best describes this situation?",
-      options: ["Passive Exclusion", "Maximal Inclusion", "Maximal Exclusion", "Active Inclusion"],
-      correct: 0
-    },
-    {
-      q: "Which of the following best describes ostracism?",
-      options: [
-        "Taking a short break from a conversation after both people agree to cool off.",
-        "Intentionally ignoring or excluding another person without explaining why.",
-        "Having a disagreement and openly discussing each person's perspective.",
-        "Respectfully ending a relationship through honest communication."
-      ],
-      correct: 1
-    },
-    {
-      q: "Which of the following is the best example of suspicious jealousy?",
-      options: [
-        "Jamie's partner admits they have developed romantic feelings for a coworker.",
-        "Taylor becomes convinced their partner is cheating simply because they \"liked\" someone's social media post, despite having no evidence of inappropriate behaviour.",
-        "Morgan discovers their partner has been secretly going on dates with someone else.",
-        "Alex overhears their partner telling a friend they plan to end the relationship."
-      ],
-      correct: 1
-    },
-    {
-      q: "According to the evolutionary perspective, why are men and women thought to be more sensitive to different types of infidelity?",
-      options: [
-        "Men are generally more emotional than women.",
-        "Women are naturally more jealous than men.",
-        "Men historically faced concerns about paternity uncertainty, while women historically faced the risk of losing a partner's commitment and resources.",
-        "Men and women experience jealousy for exactly the same reasons."
-      ],
-      correct: 2
-    },
-    {
-      q: "Which statement best describes relational devaluation?",
-      options: [
-        "When someone believes another person values their relationship more than before.",
-        "When someone perceives that another person's value of the relationship has decreased over time.",
-        "When someone compares their relationship to another person's relationship.",
-        "When someone intentionally ends a relationship."
-      ],
-      correct: 1
-    },
-    {
-      q: "Why do people commonly lie in close relationships?",
-      options: [
-        "To always intentionally hurt the other person",
-        "To benefit themselves, avoid conflict, seek approval, or protect someone's feelings",
-        "Because they do not care about relationships",
-        "Because close relationships are built on dishonesty"
-      ],
-      correct: 1
-    },
-    {
-      q: "What is \"deceiver's distrust\"?",
-      options: [
-        "When someone refuses to forgive a person who lied to them",
-        "When someone becomes more trusting after telling a lie",
-        "When a person who lies begins to see the person they lied to as less honest and trustworthy",
-        "When two people decide to end a relationship after conflict"
-      ],
-      correct: 2
-    },
-    {
-      q: "Why can betrayal feel especially painful in close relationships?",
-      options: [
-        "Because strangers are usually more important than loved ones",
-        "Because people are emotionally vulnerable and trust those closest to them",
-        "Because betrayal only happens in romantic relationships",
-        "Because people always intend to hurt others when they betray them"
-      ],
-      correct: 1
-    },
-    {
-      q: "Why is revenge often considered harmful in relationships?",
-      options: [
-        "It always immediately fixes the original problem",
-        "It helps both people understand each other better",
-        "It can create a cycle of hurt where both people continue seeing themselves as the victim",
-        "It guarantees that the other person will apologize"
-      ],
-      correct: 2
-    },
-    {
-      q: "Why does revenge often feel more satisfying in imagination than in reality?",
-      options: [
-        "Because planning revenge can create temporary feelings of control, but acting on it may not heal the original hurt",
-        "Because revenge always makes people happier long-term",
-        "Because the person who caused harm always understands why they are being punished",
-        "Because revenge removes all negative emotions immediately"
-      ],
-      correct: 0
-    }
-  ];
-
-  const app = document.getElementById('quiz-app');
-  let currentIndex = 0;
-  let score = 0;
-  let answered = false;
-
-  const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>';
-  const xSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-
-  function renderIntro(){
-    app.innerHTML = `
-      <div class="quiz-intro reveal in">
-        <div class="eyebrow" style="justify-content:center;">Quick check</div>
-        <h1>Complete the quiz to see how well you can identify the different stresses and strains that affect close relationships. Good luck!</h1>
-        <p>See how well the stories stuck. Pick an answer for each question and get your score out of 100 at the end.</p>
-        <button class="quiz-start-btn" id="start-btn">Start quiz</button>
-      </div>
-    `;
-    document.getElementById('start-btn').addEventListener('click', () => {
-      currentIndex = 0;
-      score = 0;
-      renderQuestion();
-    });
-  }
-
-  function renderDots(){
-    let dots = '';
-    for(let i = 0; i < QUESTIONS.length; i++){
-      let cls = 'quiz-dot';
-      if(i < currentIndex) cls += ' done';
-      if(i === currentIndex) cls += ' active';
-      dots += `<div class="${cls}"></div>`;
-    }
-    return `<div class="quiz-progress">${dots}</div>`;
-  }
-
-  function renderQuestion(){
-    answered = false;
-    const item = QUESTIONS[currentIndex];
-    let optionsHTML = '';
-    item.options.forEach((opt, i) => {
-      optionsHTML += `
-        <button class="quiz-option" data-index="${i}">
-          <span>${opt}</span>
-          <span class="opt-mark"></span>
-        </button>
-      `;
-    });
-
-    app.innerHTML = `
-      ${renderDots()}
-      <div class="quiz-question-enter">
-        <div class="quiz-question-num">Question ${currentIndex + 1} of ${QUESTIONS.length}</div>
-        <h2 class="quiz-question-text">${item.q}</h2>
-        <div class="quiz-options">${optionsHTML}</div>
-        <div class="quiz-next-wrap" id="next-wrap">
-          <button class="quiz-next-btn" id="next-btn">${currentIndex === QUESTIONS.length - 1 ? 'See results' : 'Next question'}</button>
-        </div>
-      </div>
-    `;
-
-    const optionButtons = app.querySelectorAll('.quiz-option');
-    optionButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        if(answered) return;
-        answered = true;
-        const chosen = parseInt(btn.getAttribute('data-index'));
-        const correct = item.correct;
-        // used to just be +20 back when this was a 5 question quiz, made it
-        // dynamic so it still adds up to 100 no matter how many questions
-        // are in the array
-        if(chosen === correct) score += Math.round(100 / QUESTIONS.length);
-
-        optionButtons.forEach(b => {
-          const idx = parseInt(b.getAttribute('data-index'));
-          b.classList.add('locked');
-          if(idx === correct){
-            b.classList.add('correct');
-            b.querySelector('.opt-mark').innerHTML = checkSVG;
-          } else if(idx === chosen){
-            b.classList.add('wrong');
-            b.querySelector('.opt-mark').innerHTML = xSVG;
-          }
-        });
-
-        document.getElementById('next-wrap').classList.add('show');
-      });
-    });
-
-    document.getElementById('next-btn').addEventListener('click', () => {
-      if(currentIndex < QUESTIONS.length - 1){
-        currentIndex++;
-        renderQuestion();
-      } else {
-        renderResults();
+  // same fade-in observer as the other pages, copy pasted over
+  const revealEls = document.querySelectorAll('.reveal:not(.in)');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
       }
     });
-  }
-
-  function renderResults(){
-    const r = 76;
-    const circumference = 2 * Math.PI * r;
-
-    let message = "Nice work.";
-    if(score === 100) message = "Perfect score, you were paying attention.";
-    else if(score >= 60) message = "Pretty solid, a few slipped through.";
-    else message = "Might be worth another pass through the stories.";
-
-    app.innerHTML = `
-      <div class="quiz-results reveal in">
-        <div class="score-ring">
-          <svg viewBox="0 0 180 180">
-            <circle class="bg" cx="90" cy="90" r="${r}"></circle>
-            <circle class="fg" id="score-circle" cx="90" cy="90" r="${r}"
-              stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"></circle>
-          </svg>
-          <div class="score-num" id="score-num">0</div>
-        </div>
-        <h2>You scored ${score} out of 100</h2>
-        <p class="result-msg">${message}</p>
-        <div class="quiz-results-actions">
-          <button class="quiz-start-btn" id="retake-btn">Retake quiz</button>
-          <a class="quiz-btn-secondary" href="index.html">Back to home</a>
-        </div>
-      </div>
-    `;
-
-    const circle = document.getElementById('score-circle');
-    const offset = circumference - (score / 100) * circumference;
-    requestAnimationFrame(() => {
-      circle.style.stroke = score >= 60 ? 'var(--elastic)' : 'var(--fracture)';
-      circle.style.strokeDashoffset = offset;
-    });
-
-    const numEl = document.getElementById('score-num');
-    let displayed = 0;
-    const duration = 1000;
-    const stepTime = 16;
-    const steps = duration / stepTime;
-    const increment = score / steps;
-    const counter = setInterval(() => {
-      displayed += increment;
-      if(displayed >= score){
-        displayed = score;
-        clearInterval(counter);
-      }
-      numEl.textContent = Math.round(displayed);
-    }, stepTime);
-
-    document.getElementById('retake-btn').addEventListener('click', () => {
-      currentIndex = 0;
-      score = 0;
-      renderQuestion();
-    });
-  }
-
-  renderIntro();
+  }, {threshold:0.15});
+  revealEls.forEach(el => io.observe(el));
 
   const bar = document.getElementById('progress-bar');
   function updateProgress(){
