@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stress and Strain: About</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div id="progress-bar"></div>
+
+<header class="site-nav">
+  <div class="brand">stress<span>&amp;</span>strain</div>
+  <nav class="links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="index.html#articles">Articles</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="interviews.html">Interviews</a>
+  </nav>
+</header>
+
+<main class="simple-main">
+
+  <div class="page-hero reveal in">
+    <div class="eyebrow">About us</div>
+    <h1>The team behind this site.</h1>
+    <p>Three of us built this out for our Family Studies close relationships project.</p>
+  </div>
+
+  <section class="reveal">
+    <div class="about-grid">
+      <div class="creator-card" style="--accent:var(--elastic)">
+        <div class="creator-avatar">MM</div>
+        <h3 class="creator-name">Megha Menikgama</h3>
+        <div class="creator-role">Creator</div>
+        <div class="creator-detail">
+          <span>Computer Science</span>
+          <span class="school">Western University</span>
+        </div>
+      </div>
+      <div class="creator-card" style="--accent:var(--yield)">
+        <div class="creator-avatar">AT</div>
+        <h3 class="creator-name">Arpan Deep Thind</h3>
+        <div class="creator-role">Creator</div>
+        <div class="creator-detail">
+          <span>BMOS, Accounting Specialization</span>
+          <span class="school">Western University</span>
+        </div>
+      </div>
+      <div class="creator-card" style="--accent:var(--repair)">
+        <div class="creator-avatar">BO</div>
+        <h3 class="creator-name">Bridgitte Opoku-Sarpong</h3>
+        <div class="creator-role">Creator</div>
+        <div class="creator-detail">
+          <span>Health Science</span>
+          <span class="school">Western University</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>FAMLYSTU group 84</div>
+  </footer>
+
+</main>
+
+<script>
+  // same fade-in observer used on every page
+  const revealEls = document.querySelectorAll('.reveal:not(.in)');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.15});
+  revealEls.forEach(el => io.observe(el));
+
+  const bar = document.getElementById('progress-bar');
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrollTop = h.scrollTop || document.body.scrollTop;
+    const scrollHeight = h.scrollHeight - h.clientHeight;
+    const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+    bar.style.backgroundPosition = pct + '% 0%';
+  }
+  let ticking = false;
+  function onScroll(){
+    if(!ticking){
+      window.requestAnimationFrame(()=>{ updateProgress(); ticking = false; });
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll);
+  window.addEventListener('resize', onScroll);
+  onScroll();
+</script>
+
+</body>
+</html>
