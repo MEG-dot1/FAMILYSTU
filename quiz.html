@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stress and Strain: Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div id="progress-bar"></div>
+
+<header class="site-nav">
+  <div class="brand">stress<span>&amp;</span>strain</div>
+  <nav class="links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="index.html#articles">Articles</a>
+    <a href="interviews.html">Interviews</a>
+  </nav>
+</header>
+
+<main class="simple-main">
+
+  <a class="back-link reveal in" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to home
+  </a>
+
+  <div id="quiz-app"></div>
+
+  <footer>
+    <div>FAMLYSTU group 84</div>
+  </footer>
+
+</main>
+
+<script>
+  // quiz #1 - covers the first half of the articles (PRV through evolutionary
+  // perspective). questions/answers are just hardcoded below, "correct" is
+  // the index into the options array (0 = first option)
+  const QUESTIONS = [
+    {
+      q: "Sarah notices that her friends made plans without inviting her. They never told her she couldn't come, but they also didn't make any effort to include her. According to the textbook, which concept best describes this situation?",
+      options: ["Passive Exclusion", "Maximal Inclusion", "Maximal Exclusion", "Active Inclusion"],
+      correct: 0
+    },
+    {
+      q: "Which of the following best describes ostracism?",
+      options: [
+        "Taking a short break from a conversation after both people agree to cool off.",
+        "Intentionally ignoring or excluding another person without explaining why.",
+        "Having a disagreement and openly discussing each person's perspective.",
+        "Respectfully ending a relationship through honest communication."
+      ],
+      correct: 1
+    },
+    {
+      q: "Which of the following is the best example of suspicious jealousy?",
+      options: [
+        "Jamie's partner admits they have developed romantic feelings for a coworker.",
+        "Taylor becomes convinced their partner is cheating simply because they \"liked\" someone's social media post, despite having no evidence of inappropriate behaviour.",
+        "Morgan discovers their partner has been secretly going on dates with someone else.",
+        "Alex overhears their partner telling a friend they plan to end the relationship."
+      ],
+      correct: 1
+    },
+    {
+      q: "According to the evolutionary perspective, why are men and women thought to be more sensitive to different types of infidelity?",
+      options: [
+        "Men are generally more emotional than women.",
+        "Women are naturally more jealous than men.",
+        "Men historically faced concerns about paternity uncertainty, while women historically faced the risk of losing a partner's commitment and resources.",
+        "Men and women experience jealousy for exactly the same reasons."
+      ],
+      correct: 2
+    },
+    {
+      q: "Which statement best describes relational devaluation?",
+      options: [
+        "When someone believes another person values their relationship more than before.",
+        "When someone perceives that another person's value of the relationship has decreased over time.",
+        "When someone compares their relationship to another person's relationship.",
+        "When someone intentionally ends a relationship."
+      ],
+      correct: 1
+    }
+  ];
+
+  const app = document.getElementById('quiz-app');
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;
+
+  const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>';
+  const xSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  function renderIntro(){
+    app.innerHTML = `
+      <div class="quiz-intro reveal in">
+        <div class="eyebrow" style="justify-content:center;">Quick check</div>
+        <h1>Five questions, one shot.</h1>
+        <p>See how well the stories stuck. Pick an answer for each question and get your score out of 100 at the end.</p>
+        <button class="quiz-start-btn" id="start-btn">Start quiz</button>
+      </div>
+    `;
+    document.getElementById('start-btn').addEventListener('click', () => {
+      currentIndex = 0;
+      score = 0;
+      renderQuestion();
+    });
+  }
+
+  function renderDots(){
+    let dots = '';
+    for(let i = 0; i < QUESTIONS.length; i++){
+      let cls = 'quiz-dot';
+      if(i < currentIndex) cls += ' done';
+      if(i === currentIndex) cls += ' active';
+      dots += `<div class="${cls}"></div>`;
+    }
+    return `<div class="quiz-progress">${dots}</div>`;
+  }
+
+  function renderQuestion(){
+    answered = false;
+    const item = QUESTIONS[currentIndex];
+    let optionsHTML = '';
+    item.options.forEach((opt, i) => {
+      optionsHTML += `
+        <button class="quiz-option" data-index="${i}">
+          <span>${opt}</span>
+          <span class="opt-mark"></span>
+        </button>
+      `;
+    });
+
+    app.innerHTML = `
+      ${renderDots()}
+      <div class="quiz-question-enter">
+        <div class="quiz-question-num">Question ${currentIndex + 1} of ${QUESTIONS.length}</div>
+        <h2 class="quiz-question-text">${item.q}</h2>
+        <div class="quiz-options">${optionsHTML}</div>
+        <div class="quiz-next-wrap" id="next-wrap">
+          <button class="quiz-next-btn" id="next-btn">${currentIndex === QUESTIONS.length - 1 ? 'See results' : 'Next question'}</button>
+        </div>
+      </div>
+    `;
+
+    const optionButtons = app.querySelectorAll('.quiz-option');
+    optionButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if(answered) return;
+        answered = true;
+        const chosen = parseInt(btn.getAttribute('data-index'));
+        const correct = item.correct;
+        if(chosen === correct) score += 20;
+
+        optionButtons.forEach(b => {
+          const idx = parseInt(b.getAttribute('data-index'));
+          b.classList.add('locked');
+          if(idx === correct){
+            b.classList.add('correct');
+            b.querySelector('.opt-mark').innerHTML = checkSVG;
+          } else if(idx === chosen){
+            b.classList.add('wrong');
+            b.querySelector('.opt-mark').innerHTML = xSVG;
+          }
+        });
+
+        document.getElementById('next-wrap').classList.add('show');
+      });
+    });
+
+    document.getElementById('next-btn').addEventListener('click', () => {
+      if(currentIndex < QUESTIONS.length - 1){
+        currentIndex++;
+        renderQuestion();
+      } else {
+        renderResults();
+      }
+    });
+  }
+
+  function renderResults(){
+    const r = 76;
+    const circumference = 2 * Math.PI * r;
+
+    let message = "Nice work.";
+    if(score === 100) message = "Perfect score, you were paying attention.";
+    else if(score >= 60) message = "Pretty solid, a few slipped through.";
+    else message = "Might be worth another pass through the stories.";
+
+    app.innerHTML = `
+      <div class="quiz-results reveal in">
+        <div class="score-ring">
+          <svg viewBox="0 0 180 180">
+            <circle class="bg" cx="90" cy="90" r="${r}"></circle>
+            <circle class="fg" id="score-circle" cx="90" cy="90" r="${r}"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${circumference}"></circle>
+          </svg>
+          <div class="score-num" id="score-num">0</div>
+        </div>
+        <h2>You scored ${score} out of 100</h2>
+        <p class="result-msg">${message}</p>
+        <div class="quiz-results-actions">
+          <button class="quiz-start-btn" id="retake-btn">Retake quiz</button>
+          <a class="quiz-btn-secondary" href="index.html">Back to home</a>
+        </div>
+      </div>
+    `;
+
+    const circle = document.getElementById('score-circle');
+    const offset = circumference - (score / 100) * circumference;
+    requestAnimationFrame(() => {
+      circle.style.stroke = score >= 60 ? 'var(--elastic)' : 'var(--fracture)';
+      circle.style.strokeDashoffset = offset;
+    });
+
+    const numEl = document.getElementById('score-num');
+    let displayed = 0;
+    const duration = 1000;
+    const stepTime = 16;
+    const steps = duration / stepTime;
+    const increment = score / steps;
+    const counter = setInterval(() => {
+      displayed += increment;
+      if(displayed >= score){
+        displayed = score;
+        clearInterval(counter);
+      }
+      numEl.textContent = Math.round(displayed);
+    }, stepTime);
+
+    document.getElementById('retake-btn').addEventListener('click', () => {
+      currentIndex = 0;
+      score = 0;
+      renderQuestion();
+    });
+  }
+
+  renderIntro();
+
+  const bar = document.getElementById('progress-bar');
+  function updateProgress(){
+    const h = document.documentElement;
+    const scrollTop = h.scrollTop || document.body.scrollTop;
+    const scrollHeight = h.scrollHeight - h.clientHeight;
+    const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+    bar.style.width = pct + '%';
+    bar.style.backgroundPosition = pct + '% 0%';
+  }
+  let ticking = false;
+  function onScroll(){
+    if(!ticking){
+      window.requestAnimationFrame(()=>{ updateProgress(); ticking = false; });
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll);
+  window.addEventListener('resize', onScroll);
+  onScroll();
+</script>
+
+</body>
+</html>
